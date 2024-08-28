@@ -1,24 +1,22 @@
 import express from 'express'
-import mongoose from 'mongoose';
-import 'dotenv/config'
+import db from './config/mongoDB.config.js';
+import userAuthRouter from './routes/auth.route.js';
+import { config } from 'dotenv';
+config({ path: "./config/config.env" })
 
 const server = express();
 
 server.use(express.json());
+server.use(express.urlencoded({ extended: true }));
 
 
-// await mongoose.connect(process.env.MONGODB_URI)
-mongoose.connect(process.env.MONGODB_COMPASS)
+// Authentication handling 
+server.use('/api/v1/user',userAuthRouter)
 
-server.post('/no', async(req, res) => {
-    console.log("hello");
-    console.log(req.body)
-    res.json(req.body)
-    
-})
 
 
 server.listen(process.env.PORT, () => {
+    // database function calling 
+    db();
     console.log("server Started on port " + (process.env.PORT));
-
 })

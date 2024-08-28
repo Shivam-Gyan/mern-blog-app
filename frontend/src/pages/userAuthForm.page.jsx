@@ -1,14 +1,31 @@
 import { Link } from "react-router-dom"
 import { InputBox } from "../components"
-
 import google from '../imgs/google.png'
 import { AnimationWrapper } from "../common"
+import { useRef } from "react"
 
 const UserAuthForm = ({ type }) => {
+    const authForm = useRef()
+
+    const handleSubmit = (e) => {
+
+        e.preventDefault();
+
+        const form = new FormData(authForm.current)
+        let formData = {}
+
+        for (let [key, value] of form.entries()) {
+            formData[key] = value
+        }
+
+        console.log(formData)
+    }
+
+
     return (
         <AnimationWrapper keyValue={type}>
             <section className="h-cover flex items-center justify-center">
-                <form className="w-[80%] max-w-[400px]">
+                <form ref={authForm} className="w-[80%] max-w-[400px]" onSubmit={(e) => handleSubmit(e)}>
                     <h1
                         className="text-3xl capitalize font-gelasio text-center mb-24">
                         {type == "sign-in" ? "welcome back" : "Join us today"}
@@ -62,21 +79,21 @@ const UserAuthForm = ({ type }) => {
                         continue with google
                     </button>
 
-                  {
-                    type=="sign-in"?
-                    <p className="mt-6 text-xl  text-dark-grey text-center">
-                        Don't have an account ?
-                        <Link to={'/signup'} className="underline text-xl ml-2 text-black">
-                            join us today.
-                        </Link>
-                    </p>:
-                    <p className="mt-6 text-xl text-dark-grey text-center">
-                        Already have an account ?
-                        <Link to={'/signin'} className="underline  text-xl ml-2 text-black">
-                            sign in here.
-                        </Link>
-                    </p>
-                  }
+                    {
+                        type == "sign-in" ?
+                            <p className="mt-6 text-xl  text-dark-grey text-center">
+                                Don't have an account ?
+                                <Link to={'/signup'} className="underline text-xl ml-2 text-black">
+                                    join us today.
+                                </Link>
+                            </p> :
+                            <p className="mt-6 text-xl text-dark-grey text-center">
+                                Already have an account ?
+                                <Link to={'/signin'} className="underline  text-xl ml-2 text-black">
+                                    sign in here.
+                                </Link>
+                            </p>
+                    }
 
                 </form>
 

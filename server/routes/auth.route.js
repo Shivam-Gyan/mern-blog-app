@@ -1,16 +1,12 @@
 import express from "express";
+import { userSignIn, userSignUp } from "../controller/auth.controller.js";
 
 const userAuthRouter=express.Router();
 
 
 
 userAuthRouter
-.post('/signin',(req,res)=>{
-    console.log(req.body);
-    res.json({
-        message:"success"
-    })
-    
-})
+.post('/signup',userSignUp)
+.post('/signin',userSignIn)
 
 export default userAuthRouter;

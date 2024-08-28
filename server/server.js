@@ -1,6 +1,7 @@
 import express from 'express'
 import db from './config/mongoDB.config.js';
 import userAuthRouter from './routes/auth.route.js';
+import { errorMiddleware } from './middleware/error.middleware.js';
 import { config } from 'dotenv';
 config({ path: "./config/config.env" })
 
@@ -12,6 +13,7 @@ server.use(express.urlencoded({ extended: true }));
 
 // Authentication handling 
 server.use('/api/v1/user',userAuthRouter)
+server.use(errorMiddleware)
 
 
 

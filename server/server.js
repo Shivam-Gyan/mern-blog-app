@@ -2,13 +2,21 @@ import express from 'express'
 import db from './config/mongoDB.config.js';
 import userAuthRouter from './routes/auth.route.js';
 import { errorMiddleware } from './middleware/error.middleware.js';
+import cors from 'cors'
 import { config } from 'dotenv';
-config({ path: "./config/config.env" })
+config({ path: ".env" })
 
 const server = express();
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
+server.use(cors(
+    {
+        origin: [process.env.FRONTEND_URL],
+        methods: ["PUT", "POST", "GET", "DELETE", "PATCH"],
+        credentials: true
+    }
+));
 
 
 // Authentication handling 

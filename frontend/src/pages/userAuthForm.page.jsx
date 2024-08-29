@@ -1,106 +1,162 @@
-import { Link } from "react-router-dom"
+import { Link, Navigate } from "react-router-dom"
 import { InputBox } from "../components"
 import google from '../imgs/google.png'
 import { AnimationWrapper } from "../common"
-import { useRef } from "react"
+import { strorStorage } from "../common/session.jsx"
+import { toast, Toaster } from 'react-hot-toast'
+import axios from 'axios'
+import { useContext } from "react"
+import { UserContext } from "../App.jsx"
+
+
+var emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // regex for email
+var passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // regex for password
 
 const UserAuthForm = ({ type }) => {
-    const authForm = useRef()
+
+    let { userAuth: { access_token }, setUserAuth } = useContext(UserContext);
+
+    console.log(access_token)
+    // server request handling function 
+    const handleRequest = async (serverRoute, formData) => {
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "user" + serverRoute, formData, {
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(({ data }) => {
+                setUserAuth({access_token:data.user.access_token});
+                strorStorage("user", JSON.stringify(data.user.access_token))
+                toast.success(data.message)
+            }).catch((err) => {
+                toast.error(err.message)
+            })
+    }
+
+
+    // form handling function
 
     const handleSubmit = (e) => {
 
         e.preventDefault();
 
-        const form = new FormData(authForm.current)
         let formData = {}
-
+        const form = new FormData(fromElement)
         for (let [key, value] of form.entries()) {
             formData[key] = value
         }
 
-        console.log(formData)
+
+        const { fullname, email, password } = formData;
+
+        if (!email || !password) {
+            return toast.error("please fill the complete form")
+        }
+
+        if (fullname) {
+            if (fullname.length < 3) {
+                return toast.error("fullname must be atleast 3 letter long", 403)
+            }
+        }
+
+        if (!email.length) {
+            return toast.error("please enter an email", 403)
+        }
+        if (!emailRegex.test(email)) {
+            return toast.error("invalid email", 403)
+        }
+        if (!passwordRegex.test(password)) {
+            return toast.error("password should be 6 to 20 character long with a numeric,1 lowercase and 1 uppercase", 403)
+        }
+
+        let serverRoute = type == "sign-in" ? '/signin' : '/signup'
+
+
+        // calling server handling function
+        handleRequest(serverRoute, formData);
+
     }
 
 
     return (
-        <AnimationWrapper keyValue={type}>
-            <section className="h-cover flex items-center justify-center">
-                <form ref={authForm} className="w-[80%] max-w-[400px]" onSubmit={(e) => handleSubmit(e)}>
-                    <h1
-                        className="text-3xl capitalize font-gelasio text-center mb-24">
-                        {type == "sign-in" ? "welcome back" : "Join us today"}
-                    </h1>
+        access_token ? <Navigate to={'/'} /> :
+            <AnimationWrapper keyValue={type}>
+                <section className="h-cover flex items-center justify-center">
+                    <Toaster />
+                    <form id="fromElement" className="w-[80%] max-w-[400px]" onSubmit={handleSubmit}>
+                        <h1
+                            className="text-3xl capitalize font-gelasio text-center mb-24">
+                            {type == "sign-in" ? "welcome back" : "Join us today"}
+                        </h1>
 
-                    {/* for user signup show full name input field */}
+                        {/* for user signup show full name input field */}
 
-                    {
-                        type != "sign-in" &&
-                        <InputBox
-                            name="fullname"
-                            type="text"
-                            placeholder="full name"
-                            icon="fi-rr-user"
-                        />
-                    }
-
-                    <InputBox
-                        name="email"
-                        type="email"
-                        placeholder="email"
-                        icon="fi-rr-envelope"
-                    />
-                    <InputBox
-                        name="password"
-                        type="password"
-                        placeholder="password"
-                        icon="fi-rr-key"
-                    />
-                    <button
-                        className="btn-dark center mt-14"
-                        type="submit"
-                    >
                         {
-                            type.replace("-", " ")
+                            type != "sign-in" &&
+                            <InputBox
+                                name="fullname"
+                                type="text"
+                                placeholder="full name"
+                                icon="fi-rr-user"
+                            />
                         }
 
-                    </button>
+                        <InputBox
+                            name="email"
+                            type="email"
+                            placeholder="email"
+                            icon="fi-rr-envelope"
+                        />
+                        <InputBox
+                            name="password"
+                            type="password"
+                            placeholder="password"
+                            icon="fi-rr-key"
+                        />
+                        <button
+                            className="btn-dark center mt-14"
+                            type="submit"
+                        >
+                            {
+                                type.replace("-", " ")
+                            }
 
-                    <div className="relative w-full flex items-center 
-                    gap-2 my-10 opacity-10 uppercase text-black font-bold "
-                    >
-                        <hr className="w-1/2 border-black" />
-                        <p className="">or</p>
-                        <hr className="w-1/2 border-black" />
+                        </button>
 
-                    </div>
+                        <div className="relative w-full flex items-center 
+                gap-2 my-10 opacity-10 uppercase text-black font-bold "
+                        >
+                            <hr className="w-1/2 border-black" />
+                            <p className="">or</p>
+                            <hr className="w-1/2 border-black" />
 
-                    <button className="w-[90%] btn-dark flex items-center justify-center gap-4 center">
-                        <img src={google} alt="google" className="w-6" />
-                        continue with google
-                    </button>
+                        </div>
 
-                    {
-                        type == "sign-in" ?
-                            <p className="mt-6 text-xl  text-dark-grey text-center">
-                                Don't have an account ?
-                                <Link to={'/signup'} className="underline text-xl ml-2 text-black">
-                                    join us today.
-                                </Link>
-                            </p> :
-                            <p className="mt-6 text-xl text-dark-grey text-center">
-                                Already have an account ?
-                                <Link to={'/signin'} className="underline  text-xl ml-2 text-black">
-                                    sign in here.
-                                </Link>
-                            </p>
-                    }
+                        <button className="w-[90%] btn-dark flex items-center justify-center gap-4 center">
+                            <img src={google} alt="google" className="w-6" />
+                            continue with google
+                        </button>
 
-                </form>
+                        {
+                            type == "sign-in" ?
+                                <p className="mt-6 text-xl  text-dark-grey text-center">
+                                    Don't have an account ?
+                                    <Link to={'/signup'} className="underline text-xl ml-2 text-black">
+                                        join us today.
+                                    </Link>
+                                </p> :
+                                <p className="mt-6 text-xl text-dark-grey text-center">
+                                    Already have an account ?
+                                    <Link to={'/signin'} className="underline  text-xl ml-2 text-black">
+                                        sign in here.
+                                    </Link>
+                                </p>
+                        }
+
+                    </form>
 
 
-            </section>
-
-        </AnimationWrapper>
+                </section>
+            </AnimationWrapper>
     )
 }
 

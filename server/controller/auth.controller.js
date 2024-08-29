@@ -117,8 +117,12 @@ export const userSignIn = async (req, res, next) => {
             email: user.personal_info.email
         })
     }
-
-    const user = await User.findOne({ "personal_info.email": email })
+    let user;
+    try {
+        user = await User.findOne({ "personal_info.email": email })
+    } catch (error) {
+        return next(new ErrorHandler("Internal server error ",500))
+    }
 
     if (!user) {
         return next(new ErrorHandler("user not registered", 404))
@@ -130,11 +134,11 @@ export const userSignIn = async (req, res, next) => {
             return next(new ErrorHandler("something went wrong",404))
         }
         if(!result){
-            return next(new ErrorHandler("something went wrong",404))
+            return next(new ErrorHandler("password incorrect",404))
         }
         return res.status(200).json({
             success: true,
-            message: "congratulation for being the part of community ",
+            message: "Welcome back Buddy",
             user: formatUserData(user)
         })
 

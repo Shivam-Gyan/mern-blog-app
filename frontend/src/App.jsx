@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { Navbar } from "./components";
-import { UserAuthForm } from "./pages";
+import { Editor, UserAuthForm } from "./pages";
 import { createContext, useEffect, useState } from "react";
 import { getSession } from "./common/session";
 
@@ -14,7 +14,8 @@ const App = () => {
 
     useEffect(() => {
         let token = getSession("user");
-        token ? setUserAuth({access_token:JSON.parse(token)}) : setUserAuth({ access_token: null })
+        console.log(JSON.parse(token))
+        token ? setUserAuth(JSON.parse(token)) : setUserAuth({ access_token: null })
     }, [])
 
     return (
@@ -24,6 +25,7 @@ const App = () => {
                     <Route path='signin' element={<UserAuthForm type="sign-in" />} />
                     <Route path='signup' element={<UserAuthForm type="sign-up" />} />
                 </Route>
+                <Route path="/editor" element={<Editor/>}/>
             </Routes>
         </UserContext.Provider>
     )

@@ -1,9 +1,15 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import logo from '../imgs/logo.png'
 import { Link, Outlet } from 'react-router-dom'
+import { UserNavigationPanel } from '../components'
+import { UserContext } from '../App';
+
+
 const Navbar = () => {
 
     const [searchBoxVisibility, setSearchBoxVisibility] = useState(false);
+    const [navPanel, setNavPanel] = useState(false)
+    const { userAuth, userAuth: { access_token, profile_img } } = useContext(UserContext);
 
     return (
         <>
@@ -28,21 +34,60 @@ const Navbar = () => {
                         <i className='fi fi-rr-search text-xl '></i>
                     </button>
 
-                    <Link className='hidden md:flex gap-2 link'>
+                    <Link to={'/editor'} className='hidden md:flex gap-2 link'>
                         <i className='fi fi-rr-file-edit'></i>
                         <p>Write</p>
                     </Link>
 
-                    <Link to={'/signin'} className='btn-dark py-2 '>
-                        Sign In
-                    </Link>
-                    <Link to={'/signup'} className='btn-light py-2 hidden md:block'>
-                        Sign Up
-                    </Link>
+
+                    {/* conditional rendering of signin and profile */}
+
+                    {
+                        access_token ?
+                            <>
+                                <Link to={"/dashboard/notification"}>
+                                    <button className=' w-12 h-12 rounded-full bg-grey realtive hover:bg-black/10'>
+                                        <i className='fi fi-rr-bell text-xl block mt-1'></i>
+                                    </button>
+                                </Link>
+
+                                <div
+                                    className='relative'
+                                    onClick={() => setNavPanel(prev => !prev)}
+                                    onBlur={() => {
+                                        setTimeout(() => {
+                                            setNavPanel(prev => !prev)
+                                        }, 200)
+                                    }}
+
+                                >
+                                    <button className='w-12 h-12 mt-1 ' >
+                                        <img src={profile_img} alt="" className='w-full h-full object-cover rounded-full' />
+                                    </button>
+
+                                    {navPanel &&
+                                        <UserNavigationPanel />
+                                    }
+
+                                </div>
+
+                            </> :
+
+                            <>
+                                <Link to={'/signin'} className='btn-dark py-2 '>
+                                    Sign In
+                                </Link>
+                                <Link to={'/signup'} className='btn-light py-2 hidden md:block'>
+                                    Sign Up
+                                </Link>
+                            </>
+                    }
+
+
                 </div>
             </nav>
 
-            <Outlet/>
+            <Outlet />
 
         </>
     )

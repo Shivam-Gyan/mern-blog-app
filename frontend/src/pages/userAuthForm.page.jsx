@@ -2,7 +2,7 @@ import { Link, Navigate } from "react-router-dom"
 import { InputBox } from "../components"
 import google from '../imgs/google.png'
 import { AnimationWrapper } from "../common"
-import { strorStorage } from "../common/session.jsx"
+import { storeStorage } from "../common/session.jsx"
 import { toast, Toaster } from 'react-hot-toast'
 import axios from 'axios'
 import { useContext } from "react"
@@ -16,7 +16,7 @@ const UserAuthForm = ({ type }) => {
 
     let { userAuth: { access_token }, setUserAuth } = useContext(UserContext);
 
-    console.log(access_token)
+
     // server request handling function 
     const handleRequest = async (serverRoute, formData) => {
         await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "user" + serverRoute, formData, {
@@ -24,9 +24,9 @@ const UserAuthForm = ({ type }) => {
             headers: { "Content-Type": "application/json" }
         })
             .then(({ data }) => {
-                setUserAuth({access_token:data.user.access_token});
-                strorStorage("user", JSON.stringify(data.user.access_token))
                 toast.success(data.message)
+                storeStorage("user", JSON.stringify(data.user))
+                setUserAuth(data.user);
             }).catch((err) => {
                 toast.error(err.message)
             })

@@ -1,4 +1,4 @@
-const strorStorage=(key,value)=>{
+const storeStorage=(key,value)=>{
     return sessionStorage.setItem(key,value);
 }
 
@@ -19,7 +19,7 @@ const logoutUser=()=>{
 
 
 export {
-    strorStorage,
+    storeStorage,
     getSession,
     removeSession,
     logoutUser

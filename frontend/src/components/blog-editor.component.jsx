@@ -12,14 +12,16 @@ const BlogEditor = () => {
     const handleBannerUplaod = async (e) => {
 
         let banner = e.target.files[0]
-
-        await UploadToCloudinary(banner)
-            .then(({ image_url }) => {
-                setBannerPreview(image_url)
-            })
-            .catch((err) => {
-                console.log(err.message)
-            })
+        
+        if (banner) {
+            await UploadToCloudinary(banner)
+                .then(({ image_url }) => {
+                    setBannerPreview(image_url)
+                })
+                .catch((err) => {
+                    console.log(err.message)
+                })
+        }
     }
 
     return (

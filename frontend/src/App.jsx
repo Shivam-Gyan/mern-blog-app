@@ -14,7 +14,6 @@ const App = () => {
 
     useEffect(() => {
         let token = getSession("user");
-        console.log(JSON.parse(token))
         token ? setUserAuth(JSON.parse(token)) : setUserAuth({ access_token: null })
     }, [])
 

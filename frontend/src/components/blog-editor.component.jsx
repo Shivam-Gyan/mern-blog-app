@@ -1,28 +1,83 @@
 import { Link } from "react-router-dom"
 import logo from '../imgs/logo.png'
 import { AnimationWrapper, UploadToCloudinary } from "../common"
-import Banner from '../imgs/blog banner.png'
-import { useState } from "react"
+import defaultBanner from '../imgs/blog banner.png'
+import { useContext, useEffect, useState } from "react"
+import { Toaster, toast } from "react-hot-toast"
+import { EditorContext } from "../pages/editor.pages.jsx"
+import EditorJS from '@editorjs/editorjs'
+import { tools } from "./tools.component.jsx"
 
 
 
 const BlogEditor = () => {
-    const [bannerPreview, setBannerPreview] = useState();
+    let { blog, blog: { title, banner, content, tags, author, des }, setBlog, setEditorState, textEditor, setTextEditor } = useContext(EditorContext)
 
     const handleBannerUplaod = async (e) => {
 
         let banner = e.target.files[0]
-        
+        let UploadingBanner = toast.loading("Uploading...")
+
+
         if (banner) {
             await UploadToCloudinary(banner)
                 .then(({ image_url }) => {
-                    setBannerPreview(image_url)
+                    // bannerRef.current.src = image_url
+                    setBlog({ ...blog, banner: image_url })
+                    toast.dismiss(UploadingBanner)
                 })
                 .catch((err) => {
-                    console.log(err.message)
+                    toast.dismiss(UploadingBanner)
+                    toast.error(err.message)
                 })
         }
     }
+
+    const handlePublish = () => {
+
+        textEditor.save()
+            .then(data => {
+                setBlog({ ...blog, content: data })
+                setEditorState("publish")
+
+            }).catch(err => {
+                console.log(err.message)
+            })
+        // if (!banner.length) {
+        //     return toast.error("upload banner to publish it")
+        // }
+        // if (!title.length) {
+        //     return toast.error("Add blog title to publish it")
+        // }
+
+        // if (textEditor.isReady) {
+        //     // saving the textEditor data 
+        //     textEditor.save()
+        //         .then(data => {
+        //             if (data.blocks.length) {
+        //                 setBlog({ ...blog, content: data })
+        //                 setEditorState("publish")
+        //             } else {
+        //                 return toast.error("write something in blog to publish it")
+        //             }
+        //         }).catch(err => {
+        //             console.log(err.message)
+        //         })
+        // }
+    }
+
+    useEffect(() => {
+
+        setTextEditor(new EditorJS({
+            holder: "textEditor",
+            data: content,
+            tools: tools,
+            placeholder: "Let's write an Awesome story",
+
+        }))
+
+
+    }, [])
 
     return (
         <>
@@ -36,11 +91,15 @@ const BlogEditor = () => {
                 </Link>
 
                 <p className="max-md:hidden text-black line-clamp-1">
-                    New Blog
+                    {
+                        title
+                    }
                 </p>
 
                 <div className=" ml-auto flex gap-4 ">
-                    <button className="btn-dark py-2">
+                    <button className="btn-dark py-2"
+                        onClick={handlePublish}
+                    >
                         Publish
                     </button>
                     <button className="btn-light py-2">
@@ -50,29 +109,61 @@ const BlogEditor = () => {
             </nav>
 
             <AnimationWrapper >
+                <Toaster />
                 <section>
                     <div className="mx-auto max-w-[900px] w-full ">
-
                         <div
                             className="relative aspect-video bg-white 
-                            border-4 border-grey hover:opacity-80"
+                            border-4 border-grey hover:opacity-90"
                         >
                             <label
                                 htmlFor="uploadBanner"
                             >
-                                <img src={!bannerPreview ? Banner : bannerPreview} alt="" className="" />
+                                <img
+                                    src={banner ? banner : defaultBanner}
+                                    alt=""
+                                    className=""
+                                />
                                 <input
                                     type="file"
                                     id="uploadBanner"
                                     accept=".jpg,.png,.jpeg"
                                     hidden
-
                                     onChange={handleBannerUplaod}
                                 />
 
                             </label>
-
                         </div>
+
+                        <textarea
+                            value={title}
+                            placeholder="Blog Title"
+                            className=" text-3xl md:text-4xl w-full h-20 outline-none font-medium resize-none mt-10"
+
+                            // this functionality handle the enter key behaviour
+                            onKeyDown={(e) => {
+
+                                // enter button on keyboard has keyCode==13
+                                if (e.keyCode == 13) {
+                                    e.preventDefault();
+                                }
+                            }}
+
+                            // this function handle the auto height of textarea
+                            onChange={(e) => {
+                                let input = e.target
+                                input.style.height = "auto";
+                                input.style.height = input.scrollHeight + "px";
+                                setBlog({ ...blog, title: input.value })
+                            }}
+
+                        >
+                        </textarea>
+
+
+                        <hr className="w-full opacity-10 my-5" />
+
+                        <div id="textEditor" className="font-gelasio"></div>
                     </div>
                 </section>
 

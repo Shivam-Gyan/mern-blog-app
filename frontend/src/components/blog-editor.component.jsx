@@ -83,7 +83,7 @@ const BlogEditor = () => {
                 }
         
                 await axios.post(
-                    import.meta.env.VITE_SERVER_DOMAIN + "blog/create-blog",
+                    import.meta.env.VITE_SERVER_DOMAIN + "/blog/create-blog",
                     blogObj,
                     {
                         headers: {

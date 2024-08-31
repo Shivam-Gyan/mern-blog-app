@@ -1,4 +1,4 @@
-import { CreateBlog, getLatestBlog, getTrendingBlog, UplaodCloudinary } from "../controller/blog.controller.js";
+import { CreateBlog, getBlogBySearch, getLatestBlog, getTrendingBlog, UplaodCloudinary } from "../controller/blog.controller.js";
 import express from "express";
 import { verifyJWT } from "../utils/jwt.verification.js";
 
@@ -11,6 +11,7 @@ BlogRouter
 .post('/create-blog',verifyJWT,CreateBlog)
 .get('/latest-blogs',getLatestBlog)
 .get('/trending-blogs',getTrendingBlog)
+.post('/search-blogs',getBlogBySearch)
 
 
 export default BlogRouter

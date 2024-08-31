@@ -7,11 +7,14 @@
 
 import { useEffect, useRef, useState } from "react"
 
+export let activeNavPageRef;
+export let activeTabRef;
+
 
 const InPagenavigation = ({ routes,defaultHidden=[],defaultIndex=0,children }) => {
 
-    let activeNavPageRef=useRef();
-    let activeTabRef=useRef();
+    activeNavPageRef=useRef();
+    activeTabRef=useRef();
 
     const [pageNavIndex,setPageNavIndex]=useState(defaultIndex)
 

@@ -6,7 +6,7 @@ import { BlogEditor,PublishFromPanel } from "../components"
 const blogStructure = {
     title: "",
     banner: "",
-    conent: [],
+    content: [],
     tags: [],
     des: "",
     auther: { personal_info: {} }

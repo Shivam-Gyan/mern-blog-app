@@ -12,6 +12,10 @@ const PublishFromPanel = () => {
     let characterLimit = 200;
     let tagLimit = 10;
 
+    const handlePublishClick=()=>{
+        
+    }
+
     return (
         <AnimationWrapper>
 
@@ -115,6 +119,7 @@ const PublishFromPanel = () => {
 
                     <button
                         className="btn-dark"
+                        onClick={handlePublishClick}
                     >
                         Publish
                     </button>

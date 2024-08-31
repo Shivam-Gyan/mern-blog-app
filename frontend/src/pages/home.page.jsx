@@ -3,6 +3,7 @@ import { AnimationWrapper } from "../common";
 import { InPagenavigation, BlogPostCard, MinimalBlogPost } from "../components";
 import { useEffect, useState } from "react";
 import Loader from '../components/loader.component'
+import { activeTabRef } from "../components/inpage-navigation.component";
 
 
 
@@ -10,11 +11,12 @@ const HomePage = () => {
 
     const [fetchBlogs, setFetchBlogs] = useState(null)
     const [trendingBlogs, setTrendingBlogs] = useState(null)
+    const [pageState,setPageState]=useState("home")
 
     const categories = ["programming", "hollywood", "cooking", "tech", "finances", "social media", "travel"]
 
     const fetchLatestBlogs = async () => {
-        await axios.get(import.meta.env.VITE_SERVER_DOMAIN + 'blog/latest-blogs')
+        await axios.get(import.meta.env.VITE_SERVER_DOMAIN + '/blog/latest-blogs')
             .then(({ data: { blogs } }) => {
                 setFetchBlogs(blogs)
             })
@@ -24,7 +26,7 @@ const HomePage = () => {
     }
 
     const fetchTrendingBlog = async () => {
-        await axios.get(import.meta.env.VITE_SERVER_DOMAIN + 'blog/trending-blogs')
+        await axios.get(import.meta.env.VITE_SERVER_DOMAIN + '/blog/trending-blogs')
             .then(({ data: { blogs } }) => {
                 setTrendingBlogs(blogs)
             })
@@ -33,10 +35,47 @@ const HomePage = () => {
             })
     }
 
+    const getBlogByCategory=(e)=>{
+        let category=e.target.innerText.toLowerCase()
+        
+        setFetchBlogs(null)
+        
+        if(pageState==category){
+            setPageState("home")
+            return;
+        }
+
+        setPageState(category)
+    }
+
+    const fetchBlogByCategory=async()=>{
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN +'/blog/search-blogs',{tag:pageState},{
+            withCredentials:true,
+            headers: { "Content-Type": "application/json" }  
+        })
+        .then(({ data: { blogs } }) => {
+            setFetchBlogs(blogs)
+        })
+        .catch(err => {
+            console.log(err.message)
+        })
+    }
+
     useEffect(() => {
-        fetchLatestBlogs()
-        fetchTrendingBlog()
-    }, [])
+
+        activeTabRef.current.click()
+
+        if(pageState=="home"){
+            fetchLatestBlogs()
+        }else{
+            fetchBlogByCategory()
+        }
+
+        if(!trendingBlogs){
+            fetchTrendingBlog()
+        }
+
+    }, [pageState])
 
 
 
@@ -50,7 +89,8 @@ const HomePage = () => {
                 <div className="w-full">
 
                     <InPagenavigation
-                        routes={["home", "trending blogs"]}
+                    
+                        routes={[pageState, "trending blogs"]}
                         defaultHidden={["trending blogs"]}
                     >
                         <>
@@ -60,7 +100,7 @@ const HomePage = () => {
                                     fetchBlogs.map((blog, i) => {
                                         return (
                                             <AnimationWrapper transition={{ duration: 1, delay: i * .1 }} key={i}>
-                                                <BlogPostCard blog={blog} author={blog.author.personal_info} />
+                                                <BlogPostCard blog={blog}  author={blog.author.personal_info} />
                                             </AnimationWrapper>
                                         )
                                     })
@@ -91,7 +131,7 @@ const HomePage = () => {
                                 {
                                     categories.map((category, i) => {
                                         return (
-                                            <button key={i} className="tag">
+                                            <button onClick={getBlogByCategory} key={i} className={`tag ${pageState==category?" text-white bg-black":" "}`}>
                                                 {category}
                                             </button>
                                         )

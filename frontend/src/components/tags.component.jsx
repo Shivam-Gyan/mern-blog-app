@@ -45,7 +45,7 @@ const Tag = ({ tag, tagIndex }) => {
                 onClick={() => {
                     tags = tags.filter(t => t != tag)
                     setBlog({ ...blog, tags })
-                    toast.success("Tag deleted")
+                    toast.error("Tag deleted")
                 }}
             >
                 <i className="fi fi-br-cross text-sm pointer-events-none"></i>

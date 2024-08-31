@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import logo from '../imgs/logo.png'
 import { AnimationWrapper, UploadToCloudinary } from "../common"
 import defaultBanner from '../imgs/blog banner.png'
@@ -7,11 +7,16 @@ import { Toaster, toast } from "react-hot-toast"
 import { EditorContext } from "../pages/editor.pages.jsx"
 import EditorJS from '@editorjs/editorjs'
 import { tools } from "./tools.component.jsx"
+import axios from "axios"
+import { UserContext } from "../App.jsx"
+
 
 
 
 const BlogEditor = () => {
     let { blog, blog: { title, banner, content, tags, author, des }, setBlog, setEditorState, textEditor, setTextEditor } = useContext(EditorContext)
+    let {userAuth:{access_token}}=useContext(UserContext);
+    const navigate=useNavigate();
 
     const handleBannerUplaod = async (e) => {
 
@@ -34,47 +39,88 @@ const BlogEditor = () => {
     }
 
     const handlePublish = () => {
+        if (!banner.length) {
+            return toast.error("upload banner to publish it")
+        }
+        if (!title.length) {
+            return toast.error("Add blog title to publish it")
+        }
 
-        textEditor.save()
-            .then(data => {
-                setBlog({ ...blog, content: data })
-                setEditorState("publish")
+        if (textEditor.isReady) {
+            // saving the textEditor data 
+            textEditor.save()
+                .then(data => {
+                    if (data.blocks.length) {
+                        setBlog({ ...blog, content: data })
+                        setEditorState("publish")
+                    } else {
+                        return toast.error("write something in blog to publish it")
+                    }
+                }).catch(err => {
+                    console.log(err.message)
+                })
+        }
+    }
 
-            }).catch(err => {
-                console.log(err.message)
+    const handleSaveDraft=(e)=>{
+        if (e.target.className.includes("disable")) {
+            return;
+        }
+
+        if (!title.length) {
+            return toast.error("Add blog title to save it")
+        }
+
+        let loading = toast.loading("Saving...")
+
+        e.target.classList.add("disable")
+
+        if(textEditor.isReady){
+            textEditor.save().then( async (content)=>{
+
+                let blogObj = {
+                    title,banner, des, content, tags, draft: true
+                }
+        
+                await axios.post(
+                    import.meta.env.VITE_SERVER_DOMAIN + "blog/create-blog",
+                    blogObj,
+                    {
+                        headers: {
+                            withCredentials: true,
+                            'Authorization': `Bearer ${access_token}`
+                        }
+                    }
+                ).then(data => {
+                    // handle the data
+                    console.log(data)
+                    e.target.classList.remove("disable")
+                    toast.dismiss(loading)
+                    toast.success("Saved to Draft 👍")
+        
+                    setTimeout(() => {
+                        navigate('/')
+                    }, 500)
+                }).catch((err) => {
+                    toast.dismiss(loading)
+                    toast.error(err.message)
+                    // console.log(err.message)
+                })
             })
-        // if (!banner.length) {
-        //     return toast.error("upload banner to publish it")
-        // }
-        // if (!title.length) {
-        //     return toast.error("Add blog title to publish it")
-        // }
-
-        // if (textEditor.isReady) {
-        //     // saving the textEditor data 
-        //     textEditor.save()
-        //         .then(data => {
-        //             if (data.blocks.length) {
-        //                 setBlog({ ...blog, content: data })
-        //                 setEditorState("publish")
-        //             } else {
-        //                 return toast.error("write something in blog to publish it")
-        //             }
-        //         }).catch(err => {
-        //             console.log(err.message)
-        //         })
-        // }
+        } 
     }
 
     useEffect(() => {
 
-        setTextEditor(new EditorJS({
-            holder: "textEditor",
-            data: content,
-            tools: tools,
-            placeholder: "Let's write an Awesome story",
+        if (!textEditor.isReady) {
+            setTextEditor(new EditorJS({
+                holder: "textEditor",
+                data: content,
+                tools: tools,
+                placeholder: "Let's write an Awesome story",
 
-        }))
+            }))
+        }
 
 
     }, [])
@@ -97,12 +143,17 @@ const BlogEditor = () => {
                 </p>
 
                 <div className=" ml-auto flex gap-4 ">
-                    <button className="btn-dark py-2"
+                    <button
+                        className="btn-dark py-2"
                         onClick={handlePublish}
                     >
                         Publish
                     </button>
-                    <button className="btn-light py-2">
+
+                    <button
+                        className="btn-light py-2"
+                        onClick={handleSaveDraft}
+                    >
                         Save Draft
                     </button>
                 </div>

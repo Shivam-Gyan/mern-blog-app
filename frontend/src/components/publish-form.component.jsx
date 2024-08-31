@@ -3,17 +3,70 @@ import { AnimationWrapper } from "../common"
 import { EditorContext } from "../pages/editor.pages"
 import { useContext } from "react"
 import { Tag } from './index'
+import axios from 'axios'
+import { UserContext } from "../App"
+import { useNavigate } from "react-router-dom"
 
 
 const PublishFromPanel = () => {
 
-    let { blog, blog: { title, banner, des, tags }, setBlog, editorState, setEditorState, textEditor, setTextEditor } = useContext(EditorContext)
+    let { blog, blog: { title, banner, des, tags, content }, setBlog, editorState, setEditorState, textEditor, setTextEditor } = useContext(EditorContext)
+    let { userAuth: { access_token } } = useContext(UserContext)
+    const navigate = useNavigate();
 
     let characterLimit = 200;
     let tagLimit = 10;
 
-    const handlePublishClick=()=>{
+    const handlePublishClick = async (e) => {
+
+        if (e.target.className.includes("disable")) {
+            return;
+        }
+
+        if (!title.length) {
+            return toast.error("Add blog title to publish it")
+        }
+        console.log(des)
+        if (!des.length || des.length>characterLimit) {
+            return toast.error(`Add Description to publish it with in ${characterLimit}`)
+        }
         
+        if (!tags.length) {
+            return toast.error(`Add atleast 1 tags to publish blog`)
+        }
+
+        let loading = toast.loading("Publishing...")
+
+        e.target.classList.add("disable")
+
+        let blogObj = {
+            title,banner, des, content, tags, draft: false
+        }
+
+        await axios.post(
+            import.meta.env.VITE_SERVER_DOMAIN + "blog/create-blog",
+            blogObj,
+            {
+                headers: {
+                    withCredentials: true,
+                    'Authorization': `Bearer ${access_token}`
+                }
+            }
+        ).then(data => {
+            console.log(data)
+            e.target.classList.remove("disable")
+            toast.dismiss(loading)
+            toast.success("Blog Published 👍")
+
+            setTimeout(() => {
+                navigate('/')
+            }, 500)
+
+        }).catch(err => {
+            console.log(err.message)
+            toast.dismiss(loading)
+        })
+
     }
 
     return (

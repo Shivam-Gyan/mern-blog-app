@@ -7,6 +7,8 @@ import Tag from "./tags.component";
 import InPagenavigation from "./inpage-navigation.component";
 import BlogPostCard from "./blog-post.component";
 import MinimalBlogPost from "./nobanner-blog-post.component";
+import NoDataMessage from "./nodata.component";
+import LoadMoreBlog from "./load-more.component";
 
 
 export {
@@ -19,4 +21,6 @@ export {
     InPagenavigation,
     BlogPostCard,
     MinimalBlogPost,
+    NoDataMessage,
+    LoadMoreBlog,
 }

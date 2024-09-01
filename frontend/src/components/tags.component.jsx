@@ -27,7 +27,9 @@ const Tag = ({ tag, tagIndex }) => {
                         e.preventDefault()
                         let currentTag = e.target.innerText
                         if (!tags.includes(currentTag) && tag.length) {
+                            
                             tags[tagIndex] = currentTag
+                            // tags[tagIndex] = currentTag.replace(/\s+/g,"").trim()
                             setBlog({ ...blog, tags })
                         } else {
                             toast.error("Tag already included")

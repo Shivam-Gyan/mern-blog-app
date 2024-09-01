@@ -38,12 +38,12 @@ export const CreateBlog = async (req, res, next) => {
     if (!title.length) {
         return next(new ErrorHandler("provide a title to blog", 403))
     }
-    if(!draft){
+    if (!draft) {
 
         if (!des.length || des.length > 200) {
             return next(new ErrorHandler("des should be 200 words only ", 403))
         }
-    
+
         if (!banner.length) {
             return next(new ErrorHandler("add a banner to blog to publish it", 403))
         }
@@ -68,7 +68,7 @@ export const CreateBlog = async (req, res, next) => {
     let blog = new Blog({
         title,
         banner,
-        blog_id:blogId,
+        blog_id: blogId,
         des,
         content,
         tags,
@@ -103,57 +103,90 @@ export const CreateBlog = async (req, res, next) => {
 
 
 
-export const getLatestBlog=async(req,res,next)=>{
-    let maxLimit=5;
+export const getLatestBlog = async (req, res, next) => {
+    let maxLimit = 5;
 
-    await Blog.find({draft:false})
-    .populate("author","personal_info.profile_img personal_info.username personal_info.fullname -_id")
-    .sort({"publishedAt":-1})
-    .select("blog_id title des activity banner tags publishedAt -_id")
-    .limit(maxLimit)
-    .then(blogs=>{
-        return res.status(200).json({blogs})
-    })
-    .catch(err=>{
-        return next(new ErrorHandler(err.message,500))
-    })
-}
+    let { page } = req.body
 
-
-export const getTrendingBlog=async(req,res,next)=>{
-
-    let maxLimit=5;
-
-    await Blog.find({draft:false})
-    .populate("author","personal_info.profile_img personal_info.username personal_info.fullname -_id")
-    .sort({"activity.total_likes":-1,"activity.total_reads":-1,"publishedAt":-1})
-    .select("blog_id title  publishedAt -_id")
-    .limit(maxLimit)
-    .then(blogs=>{
-        return res.status(200).json({blogs})
-    })
-    .catch(err=>{
-        return next(new ErrorHandler(err.message,500))
-    })
-}
-
-
-export const getBlogBySearch=async(req,res,next)=>{
-
-        const {tag}=req.body
-        const findQuery={tags:tag,draft:false}
-
-        const maxLimit=5;
-        
-        await Blog.find(findQuery)
-        .populate("author","personal_info.profile_img personal_info.username personal_info.fullname -_id")
-        .sort({"publishedAt":-1})
+    await Blog.find({ draft: false })
+        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
+        .sort({ "publishedAt": -1 })
         .select("blog_id title des activity banner tags publishedAt -_id")
+        .skip((page - 1) * maxLimit)
         .limit(maxLimit)
-        .then(blogs=>{
-            return res.status(200).json({blogs})
+        .then(blogs => {
+            return res.status(200).json({ blogs })
         })
-        .catch(err=>{
-            return next(new ErrorHandler(err.message,500))
+        .catch(err => {
+            return next(new ErrorHandler(err.message, 500))
+        })
+}
+
+export const allLatestBlogsCount = async (req, res, next) => {
+    await Blog.countDocuments({ draft: false })
+        .then((count) => {
+            return res.status(200).json({
+                totalDocs: count
+            })
+        })
+        .catch((err) => {
+            return next(new ErrorHandler(err.message, 500))
+        })
+}
+
+
+export const getTrendingBlog = async (req, res, next) => {
+
+    let maxLimit = 5;
+
+    await Blog.find({ draft: false })
+        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
+        .sort({ "activity.total_likes": -1, "activity.total_reads": -1, "publishedAt": -1 })
+        .select("blog_id title  publishedAt -_id")
+        .limit(maxLimit)
+        .then(blogs => {
+            return res.status(200).json({ blogs })
+        })
+        .catch(err => {
+            return next(new ErrorHandler(err.message, 500))
+        })
+}
+
+
+export const getBlogBySearch = async (req, res, next) => {
+
+    const { tag, page } = req.body
+    const findQuery = { tags: tag, draft: false }
+
+    const maxLimit = 4;
+
+    await Blog.find(findQuery)
+        .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
+        .sort({ "publishedAt": -1 })
+        .select("blog_id title des activity banner tags publishedAt -_id")
+        .skip((page - 1) * maxLimit)
+        .limit(maxLimit)
+        .then(blogs => {
+            return res.status(200).json({ blogs })
+        })
+        .catch(err => {
+            return next(new ErrorHandler(err.message, 500))
+        })
+}
+
+
+export const countSearchBlog = async (req, res, next) => {
+
+    const { tag } = req.body;
+    const fetchedQuery = { draft: false, tags: tag }
+
+    await Blog.countDocuments(fetchedQuery)
+        .then((count) => {
+            return res.status(200).json({
+                totalDocs: count
+            })
+        })
+        .catch((err) => {
+            return next(new ErrorHandler(err.message, 500))
         })
 }

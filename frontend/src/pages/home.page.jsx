@@ -1,9 +1,10 @@
 import axios from "axios";
 import { AnimationWrapper } from "../common";
-import { InPagenavigation, BlogPostCard, MinimalBlogPost } from "../components";
+import { InPagenavigation, BlogPostCard, MinimalBlogPost, NoDataMessage, LoadMoreBlog } from "../components";
 import { useEffect, useState } from "react";
 import Loader from '../components/loader.component'
 import { activeTabRef } from "../components/inpage-navigation.component";
+import { filterPaginationData } from "../common/filter-pagination-data";
 
 
 
@@ -11,14 +12,22 @@ const HomePage = () => {
 
     const [fetchBlogs, setFetchBlogs] = useState(null)
     const [trendingBlogs, setTrendingBlogs] = useState(null)
-    const [pageState,setPageState]=useState("home")
+    const [pageState, setPageState] = useState("home")
 
     const categories = ["programming", "hollywood", "cooking", "tech", "finances", "social media", "travel"]
 
-    const fetchLatestBlogs = async () => {
-        await axios.get(import.meta.env.VITE_SERVER_DOMAIN + '/blog/latest-blogs')
-            .then(({ data: { blogs } }) => {
-                setFetchBlogs(blogs)
+
+    const fetchLatestBlogs = async ({ page = 1 }) => {
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/latest-blogs', { page })
+            .then(async ({ data: { blogs } }) => {
+
+                let formatData = await filterPaginationData({
+                    state: fetchBlogs,
+                    data: blogs,
+                    page,
+                    countRoute: '/blog/all-latest-blogs-count'
+                })
+                setFetchBlogs(formatData)
             })
             .catch(err => {
                 console.log(err.message)
@@ -35,43 +44,51 @@ const HomePage = () => {
             })
     }
 
-    const getBlogByCategory=(e)=>{
-        let category=e.target.innerText.toLowerCase()
-        
+    const fetchBlogByCategory = async ({ page = 1 }) => {
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/search-blogs', { tag: pageState, page }, {
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(async ({ data: { blogs } }) => {
+                let formatData = await filterPaginationData({
+                    state: fetchBlogs,
+                    data: blogs,
+                    page,
+                    countRoute: '/blog/search-blogs-count',
+                    data_to_send:{tag:pageState}
+                })
+                setFetchBlogs(formatData)
+            })
+            .catch(err => {
+                console.log(err.message)
+            })
+    }
+
+
+    // this functionality used to get the innnertext of tag who clicked and then store in the pageState
+
+    const getBlogByCategory = (e) => {
+        let category = e.target.innerText.toLowerCase()
         setFetchBlogs(null)
-        
-        if(pageState==category){
+
+        if (pageState == category) {
             setPageState("home")
             return;
         }
-
         setPageState(category)
     }
 
-    const fetchBlogByCategory=async()=>{
-        await axios.post(import.meta.env.VITE_SERVER_DOMAIN +'/blog/search-blogs',{tag:pageState},{
-            withCredentials:true,
-            headers: { "Content-Type": "application/json" }  
-        })
-        .then(({ data: { blogs } }) => {
-            setFetchBlogs(blogs)
-        })
-        .catch(err => {
-            console.log(err.message)
-        })
-    }
 
     useEffect(() => {
 
         activeTabRef.current.click()
 
-        if(pageState=="home"){
-            fetchLatestBlogs()
-        }else{
-            fetchBlogByCategory()
+        if (pageState == "home") {
+            fetchLatestBlogs({ page: 1 })
+        } else {
+            fetchBlogByCategory({page:1})
         }
-
-        if(!trendingBlogs){
+        if (!trendingBlogs) {
             fetchTrendingBlog()
         }
 
@@ -89,7 +106,7 @@ const HomePage = () => {
                 <div className="w-full">
 
                     <InPagenavigation
-                    
+
                         routes={[pageState, "trending blogs"]}
                         defaultHidden={["trending blogs"]}
                     >
@@ -97,25 +114,27 @@ const HomePage = () => {
                             {
                                 fetchBlogs == null ?
                                     <Loader /> :
-                                    fetchBlogs.map((blog, i) => {
+                                    (fetchBlogs.results.length ? fetchBlogs.results.map((blog, i) => {
                                         return (
                                             <AnimationWrapper transition={{ duration: 1, delay: i * .1 }} key={i}>
-                                                <BlogPostCard blog={blog}  author={blog.author.personal_info} />
+                                                <BlogPostCard blog={blog} author={blog.author.personal_info} />
                                             </AnimationWrapper>
                                         )
-                                    })
+                                    }) : <NoDataMessage message={"No blogs published yet"} />)
                             }
+
+                            <LoadMoreBlog state={fetchBlogs} fetchDataFun={pageState=="home"?fetchLatestBlogs:fetchBlogByCategory} />
                         </>
                         {
                             trendingBlogs == null ?
                                 <Loader /> :
-                                trendingBlogs.map((blog, i) => {
+                                (trendingBlogs.length ? trendingBlogs.map((blog, i) => {
                                     return (
                                         <AnimationWrapper transition={{ duration: 1, delay: i * .1 }} key={i}>
                                             <MinimalBlogPost blog={blog} index={i} />
                                         </AnimationWrapper>
                                     )
-                                })
+                                }) : <NoDataMessage message={"No trending blogs"} />)
                         }
 
                     </InPagenavigation>
@@ -131,7 +150,7 @@ const HomePage = () => {
                                 {
                                     categories.map((category, i) => {
                                         return (
-                                            <button onClick={getBlogByCategory} key={i} className={`tag ${pageState==category?" text-white bg-black":" "}`}>
+                                            <button onClick={getBlogByCategory} key={i} className={`tag ${pageState == category ? " text-white bg-black" : " "}`}>
                                                 {category}
                                             </button>
                                         )
@@ -149,13 +168,14 @@ const HomePage = () => {
                             {
                                 trendingBlogs == null ?
                                     <Loader /> :
-                                    trendingBlogs.map((blog, i) => {
-                                        return (
-                                            <AnimationWrapper transition={{ duration: 1, delay: i * .1 }} key={i}>
-                                                <MinimalBlogPost blog={blog} index={i} />
-                                            </AnimationWrapper>
-                                        )
-                                    })
+                                    (trendingBlogs.length ?
+                                        trendingBlogs.map((blog, i) => {
+                                            return (
+                                                <AnimationWrapper transition={{ duration: 1, delay: i * .1 }} key={i}>
+                                                    <MinimalBlogPost blog={blog} index={i} />
+                                                </AnimationWrapper>
+                                            )
+                                        }) : <NoDataMessage message={"No trending blogs"} />)
                             }
 
                         </div>

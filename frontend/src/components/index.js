@@ -9,6 +9,7 @@ import BlogPostCard from "./blog-post.component";
 import MinimalBlogPost from "./nobanner-blog-post.component";
 import NoDataMessage from "./nodata.component";
 import LoadMoreBlog from "./load-more.component";
+import UserCard from "./usercard.component";
 
 
 export {
@@ -23,4 +24,5 @@ export {
     MinimalBlogPost,
     NoDataMessage,
     LoadMoreBlog,
+    UserCard,
 }

@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { Navbar } from "./components";
-import { Editor, HomePage, UserAuthForm } from "./pages";
+import { Editor, HomePage, PageNotFound, SearchPage, UserAuthForm } from "./pages";
 import { createContext, useEffect, useState } from "react";
 import { getSession } from "./common/session";
 
@@ -24,6 +24,8 @@ const App = () => {
                     <Route index element={<HomePage />} />
                     <Route path='signin' element={<UserAuthForm type="sign-in" />} />
                     <Route path='signup' element={<UserAuthForm type="sign-up" />} />
+                    <Route path="search/:query" element={<SearchPage/>}/>
+                    <Route path="*" element={<PageNotFound/>}/>
                 </Route>
                 <Route path="/editor" element={<Editor />} />
             </Routes>

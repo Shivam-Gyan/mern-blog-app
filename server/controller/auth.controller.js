@@ -147,16 +147,17 @@ export const userSignIn = async (req, res, next) => {
 }
 
 
-export const getUserBySearch=async(req,res,next)=>{
-    const {query}=req.body;
+export const getProfileById=async(req,res,next)=>{
 
-    await User.find({"personal_info.username":new RegExp(query,"i")})
-    .limit(10)
-    .select("personal_info.username personal_info.fullname personal_info.profile_img -_id")
-    .then((users)=>{
-        return res.status(200).json({users})
+    const {username}=req.body
+
+
+    await User.findOne({"personal_info.username":username})
+    .select("-personal_info.password -google_auth -updatedAt -blogs")
+    .then((user)=>{
+        return res.status(200).json(user)
     })
-    .catch(err=>{
-        return next(new ErrorHandler(err.message,500))
+    .catch((err)=>{
+        return next(new ErrorHandler(err.message,404))
     })
 }

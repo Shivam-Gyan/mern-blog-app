@@ -10,6 +10,7 @@ import MinimalBlogPost from "./nobanner-blog-post.component";
 import NoDataMessage from "./nodata.component";
 import LoadMoreBlog from "./load-more.component";
 import UserCard from "./usercard.component";
+import AboutUser from "./about.component";
 
 
 export {
@@ -25,4 +26,5 @@ export {
     NoDataMessage,
     LoadMoreBlog,
     UserCard,
+    AboutUser,
 }

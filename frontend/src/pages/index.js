@@ -3,6 +3,7 @@ import Editor from "./editor.pages";
 import HomePage from "./home.page";
 import SearchPage from "./search.page";
 import PageNotFound from "./404.page";
+import ProiflePage from "./profile.page";
 
 
 
@@ -12,4 +13,5 @@ export {
     HomePage,
     SearchPage,
     PageNotFound,
+    ProiflePage,
 }

@@ -1,6 +1,7 @@
 import express from 'express'
 import db from './config/mongoDB.config.js';
 import userAuthRouter from './routes/auth.route.js';
+import UserRouter from './routes/user.route.js';
 import BlogRouter from './routes/blog.route.js';
 import { errorMiddleware } from './middleware/error.middleware.js';
 import cors from 'cors'
@@ -36,8 +37,9 @@ server.use(cors(
 
 
 // Authentication handling 
-server.use('/api/v1/user',userAuthRouter)
+server.use('/api/v1/auth',userAuthRouter)
 server.use('/api/v1/blog',BlogRouter)
+server.use('/api/v1/user',UserRouter)
 server.use(errorMiddleware)
 
 

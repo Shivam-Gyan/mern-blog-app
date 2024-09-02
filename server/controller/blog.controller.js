@@ -155,7 +155,7 @@ export const getTrendingBlog = async (req, res, next) => {
 
 export const getBlogBySearch = async (req, res, next) => {
 
-    const { tag,query, page } = req.body
+    const { tag,query, page,author } = req.body
 
     let findQuery;
 
@@ -167,9 +167,11 @@ export const getBlogBySearch = async (req, res, next) => {
 
         // find and related word in title same as query ,"i" determine it case be case sensitive
         findQuery = { title:new RegExp(query,"i"), draft: false }
+    }else if(author){
+        findQuery = { author, draft: false }
     }
 
-    const maxLimit = 1;
+    const maxLimit = 2;
 
     await Blog.find(findQuery)
         .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
@@ -188,13 +190,15 @@ export const getBlogBySearch = async (req, res, next) => {
 
 export const countSearchBlog = async (req, res, next) => {
 
-    const { tag,query } = req.body;
+    const { tag,query,author } = req.body;
 
     let fetchedQuery;
     if(tag){
         fetchedQuery = { draft: false, tags: tag }
     }else if(query){
         fetchedQuery = { title:new RegExp(query,"i"), draft: false }
+    }else if(author){
+        fetchedQuery = { author, draft: false }
     }
 
     await Blog.countDocuments(fetchedQuery)

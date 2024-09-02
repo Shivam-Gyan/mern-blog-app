@@ -19,7 +19,7 @@ const UserAuthForm = ({ type }) => {
 
     // server request handling function 
     const handleRequest = async (serverRoute, formData) => {
-        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/user" + serverRoute, formData, {
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/auth" + serverRoute, formData, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" }
         })

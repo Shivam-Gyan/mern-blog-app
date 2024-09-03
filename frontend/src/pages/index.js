@@ -4,6 +4,7 @@ import HomePage from "./home.page";
 import SearchPage from "./search.page";
 import PageNotFound from "./404.page";
 import ProiflePage from "./profile.page";
+import BlogPage from "./blog.page";
 
 
 
@@ -14,4 +15,5 @@ export {
     SearchPage,
     PageNotFound,
     ProiflePage,
+    BlogPage,
 }

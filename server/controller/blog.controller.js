@@ -33,7 +33,7 @@ export const CreateBlog = async (req, res, next) => {
 
     let authorId = req.user;
 
-    let { title, banner, content, tags, des, draft } = req.body
+    let { title, banner, content, tags, des, draft, id } = req.body
 
     if (!title.length) {
         return next(new ErrorHandler("provide a title to blog", 403))
@@ -57,47 +57,64 @@ export const CreateBlog = async (req, res, next) => {
 
     // to convert tags in lowercase in other to search it 
 
-    tags = tags.map(tag => tag.toLowerCase());
+    tags = tags.map(tag => tag.toLowerCase().trim());
 
     // instead of using object _id of each block blog ,
     // we can create our own blogId which protect data from breaching
 
-    const blogId = title.replace(/[^a-zA-z0-9]/g, ' ').replace(/\s+/g, "-").trim() + nanoid()
+    // if we have id which is blog_id from edit blog then return as blog_id
+    let blog_id = id || title.replace(/[^a-zA-z0-9]/g, ' ').replace(/\s+/g, "-").trim() + nanoid()
 
 
-    let blog = new Blog({
-        title,
-        banner,
-        blog_id: blogId,
-        des,
-        content,
-        tags,
-        author: authorId,
-        draft: Boolean(draft)
-    })
+    if (id) {
 
-    await blog.save()
-        .then(async (data) => {
-            // if the post is in draft then not increment the total no of post of author else increase by 1
-            let authorPosts = draft ? 0 : 1
-            await User.findOneAndUpdate(
-                { _id: authorId },
-                {
-                    $inc: { "account_info.total_posts": authorPosts },
-                    $push: { "blogs": data._id }
-                }
-            ).then(user => {
-                return res.status(200).json({
-                    id: blog.blog_id
+        await Blog.findOneAndUpdate({blog_id},{title,banner,des,content,tags,draft:draft?draft:false})
+        .then((_)=>{
+            return res.status(200).json({id:blog_id})
+        })
+        .catch((err)=>{
+            return next(new ErrorHandler(err.message,500))
+        })
+
+
+    } else {
+
+        let blog = new Blog({
+            title,
+            banner,
+            blog_id,
+            des,
+            content,
+            tags,
+            author: authorId,
+            draft: Boolean(draft)
+        })
+
+        await blog.save()
+            .then(async (data) => {
+                // if the post is in draft then not increment the total no of post of author else increase by 1
+                let authorPosts = draft ? 0 : 1
+                await User.findOneAndUpdate(
+                    { _id: authorId },
+                    {
+                        $inc: { "account_info.total_posts": authorPosts },
+                        $push: { "blogs": data._id }
+                    }
+                ).then(user => {
+                    return res.status(200).json({
+                        id: blog.blog_id
+                    })
+                }).catch(err => {
+                    return next(new ErrorHandler("failed to upload post", 500))
                 })
-            }).catch(err => {
-                return next(new ErrorHandler("failed to upload post", 500))
-            })
 
-        })
-        .catch(err => {
-            return next(new ErrorHandler(err.message, 500))
-        })
+            })
+            .catch(err => {
+                return next(new ErrorHandler(err.message, 500))
+            })
+    }
+
+
 
 }
 
@@ -155,23 +172,25 @@ export const getTrendingBlog = async (req, res, next) => {
 
 export const getBlogBySearch = async (req, res, next) => {
 
-    const { tag,query, page,author } = req.body
+    const { tag, query, page, author, limit, eliminate_blog } = req.body
 
     let findQuery;
 
-    if(tag){
+    if (tag) {
 
-        findQuery = { tags: tag, draft: false }
+        // elimimnate and return the blog which is not equal to currently open blog
 
-    }else if(query){
+        findQuery = { tags: tag, draft: false, blog_id: { $ne: eliminate_blog } }
+
+    } else if (query) {
 
         // find and related word in title same as query ,"i" determine it case be case sensitive
-        findQuery = { title:new RegExp(query,"i"), draft: false }
-    }else if(author){
+        findQuery = { title: new RegExp(query, "i"), draft: false }
+    } else if (author) {
         findQuery = { author, draft: false }
     }
 
-    const maxLimit = 2;
+    const maxLimit = limit ? limit : 2;
 
     await Blog.find(findQuery)
         .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
@@ -190,14 +209,14 @@ export const getBlogBySearch = async (req, res, next) => {
 
 export const countSearchBlog = async (req, res, next) => {
 
-    const { tag,query,author } = req.body;
+    const { tag, query, author } = req.body;
 
     let fetchedQuery;
-    if(tag){
+    if (tag) {
         fetchedQuery = { draft: false, tags: tag }
-    }else if(query){
-        fetchedQuery = { title:new RegExp(query,"i"), draft: false }
-    }else if(author){
+    } else if (query) {
+        fetchedQuery = { title: new RegExp(query, "i"), draft: false }
+    } else if (author) {
         fetchedQuery = { author, draft: false }
     }
 
@@ -210,4 +229,55 @@ export const countSearchBlog = async (req, res, next) => {
         .catch((err) => {
             return next(new ErrorHandler(err.message, 500))
         })
+}
+
+
+export const getBlogById = async (req, res, next) => {
+    let { blog_id, draft, mode } = req.body
+
+    let increment = mode != 'edit' ? 1 : 0;
+    await Blog.findOneAndUpdate({ blog_id }, { $inc: { "activity.total_reads": increment } })
+        .populate("author", "personal_info.fullname personal_info.username personal_info.profile_img ")
+        .select("title des content banner activity publishedAt blog_id tags")
+        .then(async (blog) => {
+
+            await User.findOneAndUpdate({ "personal_info.username": blog.author.personal_info.username }, {
+                $inc: {
+                    "account_info.total_reads": increment
+                }
+            })
+                .catch(err => {
+                    return next(new ErrorHandler(err.message, 500))
+                })
+
+            if (blog.draft && !draft) {
+                return next(new ErrorHandler("you cannot access draft blog ", 500))
+            }
+
+            return res.status(200).json(blog)
+        })
+        .catch((err) => {
+            return next(new ErrorHandler(err.message, 500))
+        })
+
+}
+
+
+// working from here
+
+export const likedBlogByUser=async(req,res,next)=>{
+
+    let user_id=req.user
+
+    const {blog_id,isLikedByUser}=req.body
+
+    let increment=!isLikedByUser?1:-1;
+
+    await Blog.findOneAndUpdate({blog_id},{$inc:{"activity.total_likes":increment}})
+    .then((blog)=>{
+        if(!isLikedByUser){}
+
+    }).catch((err)=>{
+        return next(new ErrorHandler(err.message,500))
+    })
 }

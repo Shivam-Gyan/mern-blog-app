@@ -86,11 +86,7 @@ const ProiflePage = () => {
                 countRoute: "/blog/search-blogs-count",
                 data_to_send: { author: user_id }
             })
-            
-            console.log(formatData)
             formatData.user_id = user_id
-            console.log(formatData)
-
             setBlogOfProfile(formatData)
         })
     }

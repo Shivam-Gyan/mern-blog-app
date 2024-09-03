@@ -11,7 +11,8 @@ import NoDataMessage from "./nodata.component";
 import LoadMoreBlog from "./load-more.component";
 import UserCard from "./usercard.component";
 import AboutUser from "./about.component";
-
+import BlogInteraction from "./blog-interaction.component";
+import BlogContent from "./blog-content.component";
 
 export {
     Navbar,
@@ -27,4 +28,6 @@ export {
     LoadMoreBlog,
     UserCard,
     AboutUser,
+    BlogInteraction,
+    BlogContent
 }

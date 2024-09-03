@@ -5,7 +5,7 @@ import { useContext } from "react"
 import { Tag } from './index'
 import axios from 'axios'
 import { UserContext } from "../App"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 
 
 const PublishFromPanel = () => {
@@ -14,7 +14,8 @@ const PublishFromPanel = () => {
     let { userAuth: { access_token } } = useContext(UserContext)
     const navigate = useNavigate();
 
-    let characterLimit = 200;
+    let {blog_id}=useParams()
+    let characterLimit = 250;
     let tagLimit = 10;
 
     const handlePublishClick = async (e) => {
@@ -26,7 +27,6 @@ const PublishFromPanel = () => {
         if (!title.length) {
             return toast.error("Add blog title to publish it")
         }
-        console.log(des)
         if (!des.length || des.length>characterLimit) {
             return toast.error(`Add Description to publish it with in ${characterLimit}`)
         }
@@ -45,7 +45,7 @@ const PublishFromPanel = () => {
 
         await axios.post(
             import.meta.env.VITE_SERVER_DOMAIN + "/blog/create-blog",
-            blogObj,
+            {...blogObj,id:blog_id},
             {
                 headers: {
                     withCredentials: true,
@@ -53,7 +53,6 @@ const PublishFromPanel = () => {
                 }
             }
         ).then(data => {
-            console.log(data)
             e.target.classList.remove("disable")
             toast.dismiss(loading)
             toast.success("Blog Published 👍")

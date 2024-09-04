@@ -21,7 +21,7 @@ const BlogInteraction = () => {
                     username: author_username
                 }
             }
-        }, setFetchedBlog, isLikedByUser, setIsLikedByUser
+        }, setFetchedBlog, isLikedByUser, setIsLikedByUser,setCommentWrapper
     } = useContext(BlogContext);
 
     const { userAuth: { username, access_token } } = useContext(UserContext)
@@ -86,6 +86,9 @@ const BlogInteraction = () => {
 
 
                     <button
+                    onClick={()=>{
+                        setCommentWrapper(prev=>!prev)
+                    }}
                         className=" w-10 h-10 rounded-full flex items-center justify-center bg-grey/80"
                     >
                         <i className="fi fi-rs-comment"></i>

@@ -1,7 +1,7 @@
 import {
-    allLatestBlogsCount, countSearchBlog, CreateBlog,
+    allLatestBlogsCount, checkIsLikedByUser, countSearchBlog, CreateBlog,
     getBlogById, getBlogBySearch, getLatestBlog,
-    getTrendingBlog, UplaodCloudinary,
+    getTrendingBlog, likedBlogByUser, UplaodCloudinary,
     
 } from "../controller/blog.controller.js";
 
@@ -21,6 +21,8 @@ BlogRouter
     .post("/all-latest-blogs-count", allLatestBlogsCount)
     .post('/search-blogs-count', countSearchBlog)
     .post('/get-blog', getBlogById)
+    .post('/like-blog',verifyJWT,likedBlogByUser)
+    .post('/isliked-by-user',verifyJWT,checkIsLikedByUser)
 
 
 export default BlogRouter

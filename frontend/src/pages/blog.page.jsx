@@ -27,6 +27,8 @@ const BlogPage = () => {
 
     const [loading, setLoading] = useState(true);
     const [isLikedByUser,setIsLikedByUser]=useState(false)
+    const [commentWrapper,setCommentWrapper]=useState(false)
+    const [parentCommentLoad,setParentCommentLoad]=useState(0)
 
     let { title, banner, tags, des, content, author: { personal_info: { fullname, username: author_username, profile_img } }, publishedAt } = fetchedBlog
 
@@ -66,7 +68,7 @@ const BlogPage = () => {
             {
                 loading ?
                     <Loader /> :
-                    <BlogContext.Provider value={{ fetchedBlog, setFetchedBlog,isLikedByUser,setIsLikedByUser }}>
+                    <BlogContext.Provider value={{ fetchedBlog, setFetchedBlog,isLikedByUser,setIsLikedByUser,commentWrapper,setCommentWrapper,parentCommentLoad,setParentCommentLoad }}>
                         <div
                             className='max-w-[900px] center py-10 max-lg:px-[5vw]'
                         >

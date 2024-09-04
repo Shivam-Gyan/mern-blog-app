@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid'
 import Blog from '../Schema/Blog.js'
 import User from '../Schema/User.js'
 import Notification from '../Schema/Notification.js';
+import Comment from '../Schema/Comment.js'
 
 // create Url of Uploaded image
 export const UplaodCloudinary = async (req, res, next) => {
@@ -69,13 +70,13 @@ export const CreateBlog = async (req, res, next) => {
 
     if (id) {
 
-        await Blog.findOneAndUpdate({blog_id},{title,banner,des,content,tags,draft:draft?draft:false})
-        .then((_)=>{
-            return res.status(200).json({id:blog_id})
-        })
-        .catch((err)=>{
-            return next(new ErrorHandler(err.message,500))
-        })
+        await Blog.findOneAndUpdate({ blog_id }, { title, banner, des, content, tags, draft: draft ? draft : false })
+            .then((_) => {
+                return res.status(200).json({ id: blog_id })
+            })
+            .catch((err) => {
+                return next(new ErrorHandler(err.message, 500))
+            })
 
 
     } else {
@@ -266,66 +267,122 @@ export const getBlogById = async (req, res, next) => {
 
 // working from here
 
-export const likedBlogByUser=async(req,res,next)=>{
+export const likedBlogByUser = async (req, res, next) => {
 
-    let user_id=req.user
+    let user_id = req.user
 
-    const {_id,isLikedByUser}=req.body
+    const { _id, isLikedByUser } = req.body
 
-    let increment=!isLikedByUser?1:-1;
+    let increment = !isLikedByUser ? 1 : -1;
 
-    await Blog.findOneAndUpdate({_id},{$inc:{"activity.total_likes":increment}})
-    .then(async(blog)=>{
-        
-        if(!isLikedByUser){
-           let liked= new Notification({
-                type:"like",
-                blog:_id,
-                notification_for:blog.author,
-                user:user_id,
-            }) 
+    await Blog.findOneAndUpdate({ _id }, { $inc: { "activity.total_likes": increment } })
+        .then(async (blog) => {
 
-            await liked.save().then(()=>{
-                return res.status(200).json({
-                    success:true,
-                    liked_by_user:true
+            if (!isLikedByUser) {
+                let liked = new Notification({
+                    type: "like",
+                    blog: _id,
+                    notification_for: blog.author,
+                    user: user_id,
                 })
-            }).catch((err)=>{
-                return next(new ErrorHandler(err.message,500))
-            })
-        }else{
 
-            await Notification.findOneAndDelete({blog:_id,type:"like",user:user_id})
-            .then(()=>{
-                return res.status(200).json({
-                    success:true,
-                    liked_by_user:false
+                await liked.save().then(() => {
+                    return res.status(200).json({
+                        success: true,
+                        liked_by_user: true
+                    })
+                }).catch((err) => {
+                    return next(new ErrorHandler(err.message, 500))
                 })
-            })
-            .catch((err)=>{
-                
-                return next(new ErrorHandler(err.message,500))
-            })
-        }
+            } else {
 
-    }).catch((err)=>{
-        return next(new ErrorHandler(err.message,500))
-    })
+                await Notification.findOneAndDelete({ blog: _id, type: "like", user: user_id })
+                    .then(() => {
+                        return res.status(200).json({
+                            success: true,
+                            liked_by_user: false
+                        })
+                    })
+                    .catch((err) => {
+
+                        return next(new ErrorHandler(err.message, 500))
+                    })
+            }
+
+        }).catch((err) => {
+            return next(new ErrorHandler(err.message, 500))
+        })
 }
 
 
-export const checkIsLikedByUser=async(req,res,next)=>{
-    let user_id=req.user
+export const checkIsLikedByUser = async (req, res, next) => {
+    let user_id = req.user
 
-    let{_id}=req.body
-    
+    let { _id } = req.body
 
-    await Notification.exists({blog:_id,type:"like",user:user_id})
-    .then((result)=>{
-        return res.status(200).json({result:result!=null?true:false})
+
+    await Notification.exists({ blog: _id, type: "like", user: user_id })
+        .then((result) => {
+            return res.status(200).json({ result: result != null ? true : false })
+        })
+        .catch(err => {
+            console.log(err)
+            return next(new ErrorHandler(err.message, 500))
+        })
+}
+
+
+export const createComment = async (req, res, next) => {
+
+    let user_id = req.user;
+
+    let {_id,comment,reply_to,blog_author}=req.body
+
+
+    if(!comment.trim().length){
+        return next(new ErrorHandler("write something to leave comment",403))
+    }
+
+    let CommentObj=new Comment({
+        blog_id:_id,blog_author,comment,commented_by:user_id
     })
-    .catch(err=>{
-        console.log(err)
+
+    await CommentObj.save().then(async(commentFile)=>{
+        let {comment,commentedAt,children}=commentFile
+
+
+        // updating blog model
+        await Blog.findOneAndUpdate({_id},{$push:{"comments":commentFile._id},$inc:{"activity.total_comments":1},"activity.total_parent_comment":1})
+        .then((blog)=>{
+            console.log(blog)
+        }).catch(err=>{
+            return next(new ErrorHandler(err.message,500))
+        })
+
+        // creating notification model for new comment 
+        let notificationObj=new Notification({
+            type:"comment",
+            blog:_id,
+            notification_for:blog_author,
+            user:user_id,
+            comment:commentFile._id
+        })
+
+        await notificationObj.save().then((notify)=>{
+            console.log(notify)
+        }).catch(err=>{
+            return next(new ErrorHandler(err.message,500))
+        })
+
+        return res.status(200).json({
+            comment,
+            commentedAt,
+            children,
+            _id:commentFile._id,
+            user_id
+        })
+    }).catch(err=>{
         return next(new ErrorHandler(err.message,500))
     })
+
 }

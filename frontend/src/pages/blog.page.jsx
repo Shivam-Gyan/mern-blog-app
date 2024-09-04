@@ -5,7 +5,7 @@ import axios from 'axios'
 import { AnimationWrapper } from '../common'
 import Loader from '../components/loader.component'
 import { getDay } from '../common/date'
-import { BlogContent, BlogInteraction, BlogPostCard } from '../components'
+import { BlogContent, BlogInteraction, BlogPostCard, CommentConatiner } from '../components'
 
 export const blogDataStructure = {
     title: "",
@@ -69,6 +69,8 @@ const BlogPage = () => {
                 loading ?
                     <Loader /> :
                     <BlogContext.Provider value={{ fetchedBlog, setFetchedBlog,isLikedByUser,setIsLikedByUser,commentWrapper,setCommentWrapper,parentCommentLoad,setParentCommentLoad }}>
+
+                        <CommentConatiner/>
                         <div
                             className='max-w-[900px] center py-10 max-lg:px-[5vw]'
                         >

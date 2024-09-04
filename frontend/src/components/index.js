@@ -13,6 +13,7 @@ import UserCard from "./usercard.component";
 import AboutUser from "./about.component";
 import BlogInteraction from "./blog-interaction.component";
 import BlogContent from "./blog-content.component";
+import CommentConatiner from "./comments.component";
 
 export {
     Navbar,
@@ -29,5 +30,6 @@ export {
     UserCard,
     AboutUser,
     BlogInteraction,
-    BlogContent
+    BlogContent,
+    CommentConatiner,
 }

@@ -3,6 +3,7 @@ import ErrorHandler from '../middleware/error.middleware.js';
 import { nanoid } from 'nanoid'
 import Blog from '../Schema/Blog.js'
 import User from '../Schema/User.js'
+import Notification from '../Schema/Notification.js';
 
 // create Url of Uploaded image
 export const UplaodCloudinary = async (req, res, next) => {
@@ -269,15 +270,62 @@ export const likedBlogByUser=async(req,res,next)=>{
 
     let user_id=req.user
 
-    const {blog_id,isLikedByUser}=req.body
+    const {_id,isLikedByUser}=req.body
 
     let increment=!isLikedByUser?1:-1;
 
-    await Blog.findOneAndUpdate({blog_id},{$inc:{"activity.total_likes":increment}})
-    .then((blog)=>{
-        if(!isLikedByUser){}
+    await Blog.findOneAndUpdate({_id},{$inc:{"activity.total_likes":increment}})
+    .then(async(blog)=>{
+        
+        if(!isLikedByUser){
+           let liked= new Notification({
+                type:"like",
+                blog:_id,
+                notification_for:blog.author,
+                user:user_id,
+            }) 
+
+            await liked.save().then(()=>{
+                return res.status(200).json({
+                    success:true,
+                    liked_by_user:true
+                })
+            }).catch((err)=>{
+                return next(new ErrorHandler(err.message,500))
+            })
+        }else{
+
+            await Notification.findOneAndDelete({blog:_id,type:"like",user:user_id})
+            .then(()=>{
+                return res.status(200).json({
+                    success:true,
+                    liked_by_user:false
+                })
+            })
+            .catch((err)=>{
+                
+                return next(new ErrorHandler(err.message,500))
+            })
+        }
 
     }).catch((err)=>{
+        return next(new ErrorHandler(err.message,500))
+    })
+}
+
+
+export const checkIsLikedByUser=async(req,res,next)=>{
+    let user_id=req.user
+
+    let{_id}=req.body
+    
+
+    await Notification.exists({blog:_id,type:"like",user:user_id})
+    .then((result)=>{
+        return res.status(200).json({result:result!=null?true:false})
+    })
+    .catch(err=>{
+        console.log(err)
         return next(new ErrorHandler(err.message,500))
     })
 }

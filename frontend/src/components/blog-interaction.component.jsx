@@ -1,7 +1,8 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { BlogContext } from "../pages/blog.page";
 import { Link } from "react-router-dom";
 import { UserContext } from "../App";
+import axios from "axios";
 
 
 const BlogInteraction = () => {
@@ -10,6 +11,7 @@ const BlogInteraction = () => {
         fetchedBlog,
         fetchedBlog:
         {
+            _id,
             title,
             blog_id,
             activity: { total_likes, total_comments },
@@ -19,19 +21,52 @@ const BlogInteraction = () => {
                     username: author_username
                 }
             }
-        }, setFetchedBlog,isLikedByUser,setIsLikedByUser
+        }, setFetchedBlog, isLikedByUser, setIsLikedByUser
     } = useContext(BlogContext);
 
-    const {userAuth:{username}}=useContext(UserContext)
+    const { userAuth: { username, access_token } } = useContext(UserContext)
 
-    const handleLikeFun=()=>{
+    const handleLikeFun = async () => {
 
-        
-        setIsLikedByUser(prev=>!prev)
 
-        !isLikedByUser?total_likes++:total_likes--
-        setFetchedBlog({...fetchedBlog,activity:{...activity,total_likes}})
+        setIsLikedByUser(prev => !prev)
+
+        !isLikedByUser ? total_likes++ : total_likes--
+        setFetchedBlog({ ...fetchedBlog, activity: { ...activity, total_likes } })
+
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/like-blog", { _id, isLikedByUser },
+            {
+                withCredentials: true,
+                headers: {
+                    "Authorization": `Bearer ${access_token}`
+                }
+            }).then(({ data }) => {
+                setIsLikedByUser(data.liked_by_user)
+            }).catch((err) => {
+                console.log(err.message)
+            })
     }
+
+    async function checkUserLiked() {
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/isliked-by-user', { _id }, {
+            withCredentials: true,
+            headers: {
+                "Authorization": `Bearer ${access_token}`
+            }
+        }).then(({ data: { result } }) => {
+            setIsLikedByUser(result)
+        }).catch((err) => {
+            console.log(err.message)
+        })
+    }
+
+    useEffect(() => {
+
+        if (access_token) {
+            checkUserLiked()
+        }
+
+    }, [])
 
 
 
@@ -42,10 +77,10 @@ const BlogInteraction = () => {
             <div className="flex gap-6 justify-between">
                 <div className="flex gap-3 items-center">
                     <button
-                    onClick={handleLikeFun}
-                        className={` w-10 h-10 rounded-full flex items-center justify-center ${isLikedByUser?"text-red bg-red/20":"bg-grey/80"} `}
+                        onClick={handleLikeFun}
+                        className={` w-10 h-10 rounded-full flex items-center justify-center ${isLikedByUser ? "text-red bg-red/20" : "bg-grey/80"} `}
                     >
-                        <i className={`fi ${isLikedByUser?"fi-sr-heart":"fi-rr-heart"}`}></i>
+                        <i className={`fi ${isLikedByUser ? "fi-sr-heart" : "fi-rr-heart"}`}></i>
                     </button>
                     <p className="text-xl text-dark-grey">{total_likes}</p>
 
@@ -61,11 +96,11 @@ const BlogInteraction = () => {
                 <div className="flex gap-6 items-center ">
 
                     {
-                        username==author_username?
-                        <Link to={`/editor/${blog_id}`} className="underline hover:text-purple">Edit</Link>:""
+                        username == author_username ?
+                            <Link to={`/editor/${blog_id}`} className="underline hover:text-purple">Edit</Link> : ""
                     }
                     <Link
-                    to={`https://twitter.com/intent/tweet?text=Read ${title}&url=${location.href}`}
+                        to={`https://twitter.com/intent/tweet?text=Read ${title}&url=${location.href}`}
                     ><i className="fi fi-brands-twitter text-xl hover:text-twitter"></i></Link>
                 </div>
             </div>

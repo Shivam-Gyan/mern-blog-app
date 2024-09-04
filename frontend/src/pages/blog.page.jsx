@@ -6,6 +6,7 @@ import { AnimationWrapper } from '../common'
 import Loader from '../components/loader.component'
 import { getDay } from '../common/date'
 import { BlogContent, BlogInteraction, BlogPostCard, CommentConatiner } from '../components'
+import { fetchComment } from '../components/comments.component'
 
 export const blogDataStructure = {
     title: "",
@@ -26,9 +27,9 @@ const BlogPage = () => {
     const [similarBlog, setSimilarBlog] = useState(null)
 
     const [loading, setLoading] = useState(true);
-    const [isLikedByUser,setIsLikedByUser]=useState(false)
-    const [commentWrapper,setCommentWrapper]=useState(false)
-    const [parentCommentLoad,setParentCommentLoad]=useState(0)
+    const [isLikedByUser, setIsLikedByUser] = useState(false)
+    const [commentWrapper, setCommentWrapper] = useState(false)
+    const [parentCommentLoad, setParentCommentLoad] = useState(0)
 
     let { title, banner, tags, des, content, author: { personal_info: { fullname, username: author_username, profile_img } }, publishedAt } = fetchedBlog
 
@@ -36,6 +37,8 @@ const BlogPage = () => {
         await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/get-blog', { blog_id }, {
             withCredentials: true
         }).then(async ({ data }) => {
+
+            data.comments = await fetchComment({ blog_id: data._id, setParentCommentCountFun: setParentCommentLoad })
 
             setFetchedBlog(data)
             await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/search-blogs", {
@@ -68,9 +71,9 @@ const BlogPage = () => {
             {
                 loading ?
                     <Loader /> :
-                    <BlogContext.Provider value={{ fetchedBlog, setFetchedBlog,isLikedByUser,setIsLikedByUser,commentWrapper,setCommentWrapper,parentCommentLoad,setParentCommentLoad }}>
+                    <BlogContext.Provider value={{ fetchedBlog, setFetchedBlog, isLikedByUser, setIsLikedByUser, commentWrapper, setCommentWrapper, parentCommentLoad, setParentCommentLoad }}>
 
-                        <CommentConatiner/>
+                        <CommentConatiner />
                         <div
                             className='max-w-[900px] center py-10 max-lg:px-[5vw]'
                         >

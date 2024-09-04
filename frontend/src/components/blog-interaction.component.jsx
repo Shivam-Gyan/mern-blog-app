@@ -3,9 +3,11 @@ import { BlogContext } from "../pages/blog.page";
 import { Link } from "react-router-dom";
 import { UserContext } from "../App";
 import axios from "axios";
+import { Toaster, toast } from "react-hot-toast";
 
 
 const BlogInteraction = () => {
+
 
     let {
         fetchedBlog,
@@ -21,12 +23,16 @@ const BlogInteraction = () => {
                     username: author_username
                 }
             }
-        }, setFetchedBlog, isLikedByUser, setIsLikedByUser,setCommentWrapper
+        }, setFetchedBlog, isLikedByUser, setIsLikedByUser, setCommentWrapper
     } = useContext(BlogContext);
 
     const { userAuth: { username, access_token } } = useContext(UserContext)
 
     const handleLikeFun = async () => {
+
+        if (!access_token) {
+            return toast.error("In order to like please login")
+        }
 
 
         setIsLikedByUser(prev => !prev)
@@ -66,12 +72,18 @@ const BlogInteraction = () => {
             checkUserLiked()
         }
 
-    }, [])
+        reset()
 
+    }, [access_token])
 
+    const reset = () => {
+        setIsLikedByUser(false)
+
+    }
 
     return (
         <>
+            <Toaster />
             <hr className="border-grey my-2" />
 
             <div className="flex gap-6 justify-between">
@@ -86,9 +98,9 @@ const BlogInteraction = () => {
 
 
                     <button
-                    onClick={()=>{
-                        setCommentWrapper(prev=>!prev)
-                    }}
+                        onClick={() => {
+                            setCommentWrapper(prev => !prev)
+                        }}
                         className=" w-10 h-10 rounded-full flex items-center justify-center bg-grey/80"
                     >
                         <i className="fi fi-rs-comment"></i>

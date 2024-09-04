@@ -14,6 +14,8 @@ import AboutUser from "./about.component";
 import BlogInteraction from "./blog-interaction.component";
 import BlogContent from "./blog-content.component";
 import CommentConatiner from "./comments.component";
+import CommentCard from "./comment-card.component";
+import CommentField from "./comment-field.component";
 
 export {
     Navbar,
@@ -32,4 +34,6 @@ export {
     BlogInteraction,
     BlogContent,
     CommentConatiner,
+    CommentCard,
+    CommentField,
 }

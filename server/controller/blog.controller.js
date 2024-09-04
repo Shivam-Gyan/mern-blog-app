@@ -352,10 +352,8 @@ export const createComment = async (req, res, next) => {
 
 
         // updating blog model
-        await Blog.findOneAndUpdate({_id},{$push:{"comments":commentFile._id},$inc:{"activity.total_comments":1},"activity.total_parent_comment":1})
-        .then((blog)=>{
-            console.log(blog)
-        }).catch(err=>{
+        await Blog.findOneAndUpdate({_id},{$push:{"comments":commentFile._id},$inc:{"activity.total_comments":1,"activity.total_parent_comment":1}})
+       .catch(err=>{
             return next(new ErrorHandler(err.message,500))
         })
 
@@ -369,7 +367,6 @@ export const createComment = async (req, res, next) => {
         })
 
         await notificationObj.save().then((notify)=>{
-            console.log(notify)
         }).catch(err=>{
             return next(new ErrorHandler(err.message,500))
         })
@@ -385,4 +382,25 @@ export const createComment = async (req, res, next) => {
         return next(new ErrorHandler(err.message,500))
     })
 
+}
+
+
+export const getBlogComments=async(req,res,next)=>{
+
+    const {blog_id,skip}=req.body
+    
+    const maxLimit=5;
+    await Comment.find({blog_id,isReply:false})
+    .populate("commented_by","personal_info.username personal_info.fullname personal_info.profile_img")
+    .skip(skip)
+    .limit(maxLimit)
+    .sort({
+        "commentedAt":-1
+    })
+    .then((comments)=>{
+        return res.status(200).json(comments)
+    })
+    .catch(err=>{
+        return next(new ErrorHandler(err.message,500))
+    })
 }

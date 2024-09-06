@@ -16,7 +16,7 @@ const BlogInteraction = () => {
             _id,
             title,
             blog_id,
-            activity: { total_likes, total_parent_comments },
+            activity: { total_likes,total_comments, total_parent_comments },
             activity,
             author: {
                 personal_info: {

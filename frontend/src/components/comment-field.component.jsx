@@ -16,10 +16,7 @@ const CommentField = ({ action = "comment",index=undefined,replyingTo=undefined,
 
     const handleAction = async () => {
         if (!access_token) {
-            toast.error("redirecting to login page")
-            setTimeout(() => {
-                navigate('/signin')
-            }, 1000)
+           return toast.error("redirecting to login page")
         }
         if (!comment.length) {
             return toast.error("Write something to leave comment...")
@@ -32,7 +29,6 @@ const CommentField = ({ action = "comment",index=undefined,replyingTo=undefined,
             }
         }).then(({ data }) => {
             
-
             setComment("")
             data.commented_by={personal_info:{username,fullname,profile_img}};
 
@@ -61,6 +57,7 @@ const CommentField = ({ action = "comment",index=undefined,replyingTo=undefined,
             }
 
             console.log(data)
+            console.log(fetchedBlog)
             let parentCommentIncrementVal=replyingTo?0: 1;
 
             setFetchedBlog({

@@ -65,7 +65,7 @@ const CommentConatiner = () => {
                 comments_array && comments_array.length ?
                     comments_array.map((comment, i) => {
                         return <AnimationWrapper key={i}>
-                            <CommentCard index={i} leftVal={comment.childrenLevel * 4} comment={comment} />
+                            <CommentCard index={i} leftVal={comment.childrenLevel * 4} commentData={comment} />
                         </AnimationWrapper>
                     })
                     : <NoDataMessage message={"no comment yet"} />

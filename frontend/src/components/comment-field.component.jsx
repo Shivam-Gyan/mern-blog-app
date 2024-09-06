@@ -6,7 +6,7 @@ import axios from "axios";
 import { BlogContext } from "../pages/blog.page";
 
 
-const CommentField = ({ action = "comment" }) => {
+const CommentField = ({ action = "comment",index=undefined,replyingTo=undefined,setReplying}) => {
 
     const [comment, setComment] = useState("")
     const navigate = useNavigate()
@@ -25,12 +25,13 @@ const CommentField = ({ action = "comment" }) => {
             return toast.error("Write something to leave comment...")
         }
 
-        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/create-comment", { _id, comment, blog_author }, {
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/create-comment", { _id, comment, blog_author,replying_to:replyingTo }, {
             withCredentials: true,
             headers: {
                 "Authorization": `Bearer ${access_token}`
             }
         }).then(({ data }) => {
+            
 
             setComment("")
             data.commented_by={personal_info:{username,fullname,profile_img}};
@@ -38,14 +39,41 @@ const CommentField = ({ action = "comment" }) => {
 
             let newCommentArray;
 
-            data.childrenLevel=0;
-            
-            // appending the new data with previous comments arr
-            newCommentArray=[data,...commentsArr]
+            if(replyingTo){
+                commentsArr[index].children.push(data._id)
 
-            let parentCommentIncrementVal=1;
+                data.childrenLevel=commentsArr[index].childrenLevel+1;
+                data.parentIndex=index;
 
-            setFetchedBlog({...fetchedBlog,comments:{...comments,results:newCommentArray},activity:{...activity,total_comments:total_comments +1,total_parent_comments:total_parent_comments+parentCommentIncrementVal}})
+                commentsArr[index].isReplyLoaded=true;
+
+                commentsArr.splice(index+1,0,data)
+
+                newCommentArray=commentsArr
+                setReplying(false)
+
+               
+
+            }else{
+                data.childrenLevel=0;
+                // appending the new data with previous comments arr
+                newCommentArray=[data,...commentsArr]
+            }
+
+            console.log(data)
+            let parentCommentIncrementVal=replyingTo?0: 1;
+
+            setFetchedBlog({
+                ...fetchedBlog,
+                comments:{
+                    ...comments,
+                    results:newCommentArray
+                },activity:{
+                    ...activity,
+                    total_comments:total_comments +1,
+                    total_parent_comments:total_parent_comments+parentCommentIncrementVal
+                }
+            })
 
             setParentCommentLoad(prev=>prev+1)
             

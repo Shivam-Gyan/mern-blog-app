@@ -3,10 +3,10 @@ import { getDay } from "../common/date";
 import { useState } from "react";
 import {CommentField} from './index'
 
-const CommentCard = ({ index, leftVal, comment }) => {
+const CommentCard = ({ index, leftVal, commentData }) => {
 
-    let { commented_by: { personal_info },commentedAt,comment:commentText} = comment
-    let { username: author_username, fullname, profile_img } = personal_info;
+    let { commented_by: { personal_info },commentedAt,comment:commentText,_id} = commentData
+    let { username: author_username,profile_img } = personal_info;
 
     const [isReplying,setIsReplying]=useState(false)
 
@@ -26,15 +26,22 @@ const CommentCard = ({ index, leftVal, comment }) => {
                 </div>
 
                 <p className="font-gelasio text-lg ml-3">{commentText}</p>
+
                 <div className="flex items-center mt-5">
+
+                    {
+                        commentData.isReplyLoaded
+                    }
                     <button onClick={()=>setIsReplying(prev=>!prev)} className="underline text-md"> 
                         Reply
                     </button>
                 </div>
+
+
                 {
                     isReplying?
                     <div className="mt-8">
-                        <CommentField action="Reply" />
+                        <CommentField action="Reply" index={index} replyingTo={_id} setReplying={setIsReplying} />
                     </div>:""
                 }
 

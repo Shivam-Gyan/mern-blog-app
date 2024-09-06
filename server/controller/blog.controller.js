@@ -336,7 +336,7 @@ export const createComment = async (req, res, next) => {
 
     let user_id = req.user;
 
-    let {_id,comment,reply_to,blog_author}=req.body
+    let {_id,comment,replying_to,blog_author}=req.body
 
 
     if(!comment.trim().length){
@@ -347,24 +347,37 @@ export const createComment = async (req, res, next) => {
         blog_id:_id,blog_author,comment,commented_by:user_id
     })
 
+    if(replying_to){
+        CommentObj.parent=replying_to
+    }
+
     await CommentObj.save().then(async(commentFile)=>{
         let {comment,commentedAt,children}=commentFile
 
 
         // updating blog model
-        await Blog.findOneAndUpdate({_id},{$push:{"comments":commentFile._id},$inc:{"activity.total_comments":1,"activity.total_parent_comment":1}})
+        await Blog.findOneAndUpdate({_id},{$push:{"comments":commentFile._id},$inc:{"activity.total_comments":1,"activity.total_parent_comment":replying_to?0:1}})
        .catch(err=>{
             return next(new ErrorHandler(err.message,500))
         })
 
         // creating notification model for new comment 
         let notificationObj=new Notification({
-            type:"comment",
+            type:replying_to?"reply": "comment",
             blog:_id,
             notification_for:blog_author,
             user:user_id,
             comment:commentFile._id
         })
+
+        if(replying_to){
+            notificationObj.replied_on_comment=replying_to;
+            
+            await Comment.findOneAndUpdate({_id:replying_to},{$push:{children:commentFile._id}})
+            .then(replyToComment=>{
+                notificationObj.notification_for=replyToComment.commented_by
+            })
+        }
 
         await notificationObj.save().then((notify)=>{
         }).catch(err=>{

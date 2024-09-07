@@ -8,6 +8,7 @@ import cors from 'cors'
 import cloudinary from 'cloudinary'
 import fileUpload from 'express-fileupload'
 import { config } from 'dotenv';
+import CommentRouter from './routes/comment.route.js';
 config({ path: ".env" })
 
 const server = express();
@@ -40,6 +41,8 @@ server.use(cors(
 server.use('/api/v1/auth',userAuthRouter)
 server.use('/api/v1/blog',BlogRouter)
 server.use('/api/v1/user',UserRouter)
+server.use('/api/v1/comment',CommentRouter)
+
 server.use(errorMiddleware)
 
 

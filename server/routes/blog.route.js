@@ -1,9 +1,6 @@
 import {
     allLatestBlogsCount, checkIsLikedByUser, countSearchBlog, CreateBlog,
-    createComment,
-    deleteComment,
-    getBlogById, getBlogBySearch, getBlogComments, getLatestBlog,
-    getReplies,
+    getBlogById, getBlogBySearch, getLatestBlog,
     getTrendingBlog, likedBlogByUser, UplaodCloudinary,
     
 } from "../controller/blog.controller.js";
@@ -26,10 +23,7 @@ BlogRouter
     .post('/get-blog', getBlogById)
     .post('/like-blog',verifyJWT,likedBlogByUser)
     .post('/isliked-by-user',verifyJWT,checkIsLikedByUser)
-    .post('/create-comment',verifyJWT,createComment)
-    .post('/get-blog-comments',getBlogComments)
-    .post('/get-replies',getReplies)
-    .post('/delete-comment',verifyJWT,deleteComment)
+    
 
 
 export default BlogRouter

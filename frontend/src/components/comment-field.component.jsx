@@ -22,7 +22,7 @@ const CommentField = ({ action = "comment",index=undefined,replyingTo=undefined,
             return toast.error("Write something to leave comment...")
         }
 
-        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/create-comment", { _id, comment, blog_author,replying_to:replyingTo }, {
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/comment/create-comment", { _id, comment, blog_author,replying_to:replyingTo }, {
             withCredentials: true,
             headers: {
                 "Authorization": `Bearer ${access_token}`
@@ -56,8 +56,6 @@ const CommentField = ({ action = "comment",index=undefined,replyingTo=undefined,
                 newCommentArray=[data,...commentsArr]
             }
 
-            console.log(data)
-            console.log(fetchedBlog)
             let parentCommentIncrementVal=replyingTo?0: 1;
 
             setFetchedBlog({

@@ -5,18 +5,34 @@ import { CommentField } from './index'
 import { BlogContext } from "../pages/blog.page";
 import axios from "axios";
 import { UserContext } from "../App";
+import { toast } from "react-hot-toast";
 
 const CommentCard = ({ index, leftVal, commentData }) => {
 
     let { commented_by: { personal_info }, commentedAt, comment: commentText, _id, children } = commentData
     let { username: commented_by_username, profile_img } = personal_info;
-    let { fetchedBlog, fetchedBlog: {comments, comments: { results: commentArr},author:{personal_info:{username:blog_author_username}} }, setFetchedBlog } = useContext(BlogContext)
-    
-    let {userAuth:{username:logged_in_username,access_token}}=useContext(UserContext)
-    
+    let { fetchedBlog, fetchedBlog: { activity, activity: { total_parent_comments }, comments, comments: { results: commentArr }, author: { personal_info: { username: blog_author_username } } }, setFetchedBlog, setParentCommentLoad } = useContext(BlogContext)
+
+    let { userAuth: { username: logged_in_username, access_token } } = useContext(UserContext)
+
     const [isReplying, setIsReplying] = useState(false)
-    
-    const removeCommentCard = (startingIndex) => {
+
+    const getParentIndex = () => {
+        let startingPoint = index - 1;
+
+        try {
+            while (commentArr[startingPoint].childrenLevel >= commentData.childrenLevel) {
+                startingPoint--;
+            }
+
+        } catch {
+            startingPoint = undefined
+        }
+
+        return startingPoint;
+    }
+
+    const removeCommentCard = (startingIndex, isDelete = false) => {
         if (commentArr[startingIndex]) {
 
             while (commentArr[startingIndex].childrenLevel > commentData.childrenLevel) {
@@ -28,7 +44,34 @@ const CommentCard = ({ index, leftVal, commentData }) => {
             }
         }
 
-        setFetchedBlog({ ...fetchedBlog, comments: { results: commentArr } })
+        if (isDelete) {
+            let parentIndex = getParentIndex();
+
+            if (parentIndex != undefined) {
+
+                // if the parentIndex is not undefined the this is reply of comment 
+                // thus we have to filter out the this reply from commetArr children and 
+                // store the rest of reply into commentArr 
+                commentArr[parentIndex].children = commentArr[parentIndex].children.filter(child => child != _id)
+
+                // if deleted reply is last reply then set the isReplyLoaded=false due to no reply is there
+
+                if (!commentArr[parentIndex].children.length) {
+                    commentArr[parentIndex].isReplyLoaded = false
+                }
+            }
+
+            // spice use to remove the index from commentArr if parentIndex is undefined
+            commentArr.splice(index, 1)
+        }
+
+        // if comment is parent comment the we have to update the total_parent_comments in activity of fetchedBlog
+        // using setParentCommentLoad() which set the no. of parent comment
+        if (commentData.childrenLevel == 0 && isDelete) {
+            setParentCommentLoad(prev => prev - 1)
+        }
+
+        setFetchedBlog({ ...fetchedBlog, comments: { results: commentArr }, activity: { ...activity, total_parent_comments: total_parent_comments - (commentData.childrenLevel == 0 && isDelete ? 1 : 0) } })
 
     }
 
@@ -37,46 +80,75 @@ const CommentCard = ({ index, leftVal, commentData }) => {
         removeCommentCard(index + 1)
     }
 
-    const LoadReplies=async({skip=0})=>{
+    const LoadReplies = async ({ skip = 0, currentIndex = index }) => {
 
-        if(children.length){
+        if (commentArr[currentIndex].children.length) {
             HideReplies();
+
+            await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/comment/get-replies", { _id: commentArr[currentIndex]._id, skip }, {
+                withCredentials: true
+            }).then(({ data: { replies } }) => {
+
+                commentArr[currentIndex].isReplyLoaded = true;
+
+                for (let i = 0; i < replies.length; i++) {
+                    replies[i].childrenLevel = commentArr[currentIndex].childrenLevel + 1
+                    commentArr.splice((currentIndex + 1 + i + skip), 0, replies[i])
+                }
+
+                setFetchedBlog({ ...fetchedBlog, comments: { ...comments, results: commentArr } })
+
+            }).catch(err => {
+                console.log(err)
+            })
         }
-
-        await axios.post(import.meta.env.VITE_SERVER_DOMAIN +"/blog/get-replies",{_id,skip},{
-            withCredentials:true
-        }).then(({data:{replies}})=>{
+    }
 
 
-            commentData.isReplyLoaded=true;
+    const deleteComment = async (e) => {
 
-            for(let i =0; i<replies.length;i++){
-                replies[i].childrenLevel=commentData.childrenLevel+1
-                commentArr.splice(index+1+i+skip,0,replies[i])
+        e.target.setAttribute('disable', true)
+
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/comment/delete-comment", { _id }, {
+            withCredentials: true,
+            headers: {
+                "Authorization": `Bearer ${access_token}`
             }
+        }).then(({ data }) => {
 
-            setFetchedBlog({...fetchedBlog,comments:{...comments,results:commentArr}})
+            e.target.removeAttribute("disable")
+            removeCommentCard(index + 1, true)
+            toast.success(data.message)
 
-        }).catch(err=>{
+        }).catch((err) => {
+            // toast.error(`(success - ${success})  `+message)
             console.log(err)
         })
     }
 
+    const LoadMoreReplies = () => {
+        let parentIndex = getParentIndex()
 
-    const deleteComment=async(e)=>{
+        let button = <button onClick={() => {
+            LoadReplies({ skip: index - parentIndex, currentIndex: parentIndex })
+        }} className="p-2 px-3 text-dark-grey hover:bg-grey/30 flex items-center gap-2 rounded-md">Load More Replies</button>
 
-        e.target.setAttribute('disable',true)
+        if (commentArr[index + 1]) {
+            if (commentArr[index + 1].childrenLevel < commentArr[index].childrenLevel) {
 
-        await axios.post(import.meta.env.VITE_SERVER_DOMAIN+"/blog/delete-comment",{_id},{
-            withCredentials:true,
-            headers:{
-                "Authorization":`Bearer ${access_token}`
+                if ((index - parentIndex) < commentArr[parentIndex].children.length) {
+                    return button;
+                }
             }
-        }).then(({res})=>{
-            console.log(res)
-        }).catch(err=>{
-            console.log(err)
-        })
+
+        } else {
+            if (parentIndex) {
+                if ((index - parentIndex) < commentArr[parentIndex].children.length) {
+                    return button;
+                }
+            }
+        }
+
     }
 
     return (
@@ -109,7 +181,7 @@ const CommentCard = ({ index, leftVal, commentData }) => {
                             </button> :
                             <button
                                 className="text-md text-dark-grey hover:bg-grey/30 rounded-md flex gap-2 items-center p-2 px-3"
-                                onClick={LoadReplies }
+                                onClick={LoadReplies}
                             >
                                 <i className="fi fi-rs-comment-dots"></i>
                                 {children.length} Reply
@@ -121,13 +193,13 @@ const CommentCard = ({ index, leftVal, commentData }) => {
                     </button>
 
                     {
-                        logged_in_username==commented_by_username || logged_in_username==blog_author_username?
-                        <button 
-                        className="p-2 px-3 rounded-md border border-grey ml-auto hover:text-red flex items-center"
-                        onClick={deleteComment}
-                        >
-                            <i className="fi fi-rr-trash pointer-events-none"></i>
-                        </button>:""
+                        logged_in_username == commented_by_username || logged_in_username == blog_author_username ?
+                            <button
+                                className="p-2 px-3 rounded-md border border-grey ml-auto hover:text-red flex items-center"
+                                onClick={deleteComment}
+                            >
+                                <i className="fi fi-rr-trash pointer-events-none"></i>
+                            </button> : ""
                     }
                 </div>
 
@@ -140,6 +212,7 @@ const CommentCard = ({ index, leftVal, commentData }) => {
                 }
 
             </div>
+            <LoadMoreReplies />
 
         </div>
 

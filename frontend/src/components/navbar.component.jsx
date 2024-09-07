@@ -24,7 +24,7 @@ const Navbar = () => {
 
     return (
         <>
-            <nav className='navbar'>
+            <nav className='navbar z-50'>
 
                 <Link to={'/'} className='flex-none w-10'>
                     <img className='w-full' src={logo} alt="" />
@@ -68,8 +68,8 @@ const Navbar = () => {
                                     onClick={() => setNavPanel(prev => !prev)}
                                     onBlur={() => {
                                         setTimeout(() => {
-                                            setNavPanel(prev => !prev)
-                                        }, 100)
+                                            setNavPanel(false)
+                                        }, 200)
                                     }}
                                 >
                                     <button className='w-12 h-12 mt-1 ' >

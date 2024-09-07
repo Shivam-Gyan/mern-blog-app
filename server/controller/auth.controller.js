@@ -161,3 +161,56 @@ export const getProfileById=async(req,res,next)=>{
         return next(new ErrorHandler(err.message,404))
     })
 }
+
+
+
+export const ChangePassword=async(req,res,next)=>{
+    let user_id=req.user
+
+    let {currentPassword,newPassword}=req.body
+
+    if(!currentPassword.length || !newPassword.length){
+
+        return next(new ErrorHandler(" fill the complete form",500))
+    }
+
+
+    if (!passwordRegex.test(currentPassword) ||!passwordRegex.test(newPassword)) {
+        return next(new ErrorHandler("password should be 6 to 20 character long with a numeric,1 lowercase and 1 uppercase", 403))
+    }
+
+    await User.findOne({_id:user_id})
+    .then(user=>{
+        let {personal_info:{password:prevPassword}}=user
+
+        bcrypt.compare(currentPassword,prevPassword,(err,result)=>{
+
+            if(err){
+                return next(new ErrorHandler("some error occured try sometime later ",500))
+            }
+
+            if(!result){
+                return next(new ErrorHandler("Incorrect current password",403))
+            }
+
+            bcrypt.hash(newPassword,10,async(err,hash_password)=>{
+
+                if(err){
+                    return next(new ErrorHandler("some error occured try sometime later ",500))
+                }
+                await User.findOneAndUpdate({_id:user_id},{"personal_info.password":hash_password})
+                .then((_)=>{
+                    return res.status(200).json({
+                        success:true,
+                        message:"Password change successful"
+                    })
+                }).catch(err=>{
+                    return next(new ErrorHandler("some error occured try sometime later ",500))
+                })
+            })
+        })
+    }).catch(err=>{
+        return next(new ErrorHandler("User Not found",404))
+    })
+
+}

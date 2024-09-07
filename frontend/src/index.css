@@ -83,7 +83,8 @@
     }
 
     .sidebar-link.active{
-        @apply text-black border-r-2 border-black pl-6 bg-grey/50 -ml-6 md:rounded-tl-lg md:rounded-bl-lg max-md:border-none;
+        @apply text-black border-r-2 border-black pl-6 bg-grey/50 -ml-6 rounded-tl-lg rounded-bl-lg ;
+        /* @apply text-black border-r-2 border-black pl-6 bg-grey/50 -ml-6 md:rounded-tl-lg md:rounded-bl-lg max-md:border-none; */
     }
 
     #textEditor h2, h2{

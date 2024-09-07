@@ -16,6 +16,7 @@ import BlogContent from "./blog-content.component";
 import CommentConatiner from "./comments.component";
 import CommentCard from "./comment-card.component";
 import CommentField from "./comment-field.component";
+import SideNavbar from "./sidenavbar.component";
 
 export {
     Navbar,
@@ -36,4 +37,5 @@ export {
     CommentConatiner,
     CommentCard,
     CommentField,
+    SideNavbar,
 }

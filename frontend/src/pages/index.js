@@ -5,7 +5,7 @@ import SearchPage from "./search.page";
 import PageNotFound from "./404.page";
 import ProiflePage from "./profile.page";
 import BlogPage from "./blog.page";
-
+import ChangePassword from "./change-password.page";
 
 
 export {
@@ -16,4 +16,5 @@ export {
     PageNotFound,
     ProiflePage,
     BlogPage,
+    ChangePassword,
 }

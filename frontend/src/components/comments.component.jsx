@@ -9,7 +9,7 @@ import { AnimationWrapper } from "../common"
 
 export const fetchComment = async ({ skip = 0, blog_id, setParentCommentCountFun, comment_array = null }) => {
     let res;
-    await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/get-blog-comments", { blog_id, skip }, {
+    await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/comment/get-blog-comments", { blog_id, skip }, {
         withCredentials: true
     }).then(({ data }) => {
 
@@ -31,7 +31,7 @@ export const fetchComment = async ({ skip = 0, blog_id, setParentCommentCountFun
 
 const CommentConatiner = () => {
 
-    let {fetchedBlog, fetchedBlog: { _id, title, comments: { results: comments_array }, activity: { total_parent_comments } }, commentWrapper, setCommentWrapper, parentCommentLoad, setParentCommentLoad,setFetchedBlog } = useContext(BlogContext)
+    let {fetchedBlog, fetchedBlog: { _id, title, comments: { results: comments_array }, activity: { total_comments,total_parent_comments } }, commentWrapper, setCommentWrapper, parentCommentLoad, setParentCommentLoad,setFetchedBlog } = useContext(BlogContext)
 
 
     const handleLoadMore = async () => {

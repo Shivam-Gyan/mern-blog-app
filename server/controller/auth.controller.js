@@ -147,7 +147,7 @@ export const userSignIn = async (req, res, next) => {
 }
 
 
-export const getProfileById=async(req,res,next)=>{
+export const getProfile=async(req,res,next)=>{
 
     const {username}=req.body
 
@@ -211,6 +211,80 @@ export const ChangePassword=async(req,res,next)=>{
         })
     }).catch(err=>{
         return next(new ErrorHandler("User Not found",404))
+    })
+
+}
+
+
+export const UpdateImage=async(req,res,next)=>{
+    let user_id=req.user
+
+    let {image_url}=req.body
+
+
+    await User.findOneAndUpdate({_id:user_id},{"personal_info.profile_img":image_url})
+    .then((_)=>{
+        return res.status(200).json({
+            success:true,
+            message:"profile image Updated "
+        })
+    }).catch((_)=>{
+        return next(new ErrorHandler("failed to update the image",500))
+    })
+}
+
+export const updateProfile=async(req,res,next)=>{
+
+
+    let user_id=req.user
+    let bioLimit=200;
+
+    let {username,bio,social_links}=req.body
+
+    if(bio.length>bioLimit){
+        return next(new ErrorHandler(`bio must be ${bioLimit} characters long`,403))
+    }
+
+    if(username.length<3){
+        return next(new ErrorHandler("username atleast 3 characters long",403))
+    }
+
+    let socialLinkArr=Object.keys(social_links)
+
+    try {
+        for(let i=0;i<socialLinkArr.length;i++){
+            if(social_links[socialLinkArr[i]].length){
+                let hostname=new URL(social_links[socialLinkArr[i]]).hostname
+
+                if(!hostname.includes(`${socialLinkArr[i]}.com`) && socialLinkArr[i]!='website'){
+                    return next(new ErrorHandler(`${socialLinkArr[i]} link is invalid`,403))
+                }
+            }
+        }
+        
+    } catch (error) {
+        return next(new ErrorHandler("you must provide full social links with http(s) included ",403))
+    }
+
+    let UpdateObj={
+        "personal_info.username":username,
+        "personal_info.bio":bio,
+        social_links
+    }
+
+    await User.findOneAndUpdate({_id:user_id},UpdateObj,{
+        runValidators:true
+    }).then((_)=>{
+        return res.status(200).json({
+            success:true,
+            message:"profile updated",
+            username
+        })
+    }).catch(err=>{
+        if(err.code==11000){
+            return next(new ErrorHandler(`username already exist @${username} `,403))
+        }
+        return next(new ErrorHandler(err.message,403))
     })
 
 }

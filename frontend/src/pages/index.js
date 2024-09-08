@@ -7,6 +7,7 @@ import ProiflePage from "./profile.page";
 import BlogPage from "./blog.page";
 import ChangePassword from "./change-password.page";
 import EditProfile from "./edit-profile.page";
+import NotificationPage from "./notifications.page";
 
 
 export {
@@ -19,4 +20,5 @@ export {
     BlogPage,
     ChangePassword,
     EditProfile,
+    NotificationPage,
 }

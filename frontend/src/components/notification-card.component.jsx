@@ -25,10 +25,10 @@ const NotificationCard = ({ data, index, notificationState }) => {
                         </h1>
                         {
                             type == 'reply' ?
-                                <div className="p-4 mt-3 rounded-md bg-grey">
+                                <div className="p-4 mt-3 border-r-[1px] border-r-black rounded-l-md bg-grey">
                                     <p >{replied_on_comment.comment}</p>
                                 </div> :
-                                <div className="p-4 mt-3 rounded-md bg-grey">
+                                <div className="p-4 mt-3 border-r-[1px] border-r-black rounded-l-md bg-grey">
                                     <Link
                                         to={`/blog/${blog_id}`}
                                         className="text-dark-grey cursor-pointer hover:underline line-clamp-1 font-medium"

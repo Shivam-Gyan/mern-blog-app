@@ -4,7 +4,8 @@ import { Navbar, SideNavbar } from "./components";
 import { 
     Editor, HomePage, PageNotFound, 
     ProiflePage, SearchPage,BlogPage, 
-    UserAuthForm, ChangePassword, EditProfile 
+    UserAuthForm, ChangePassword, EditProfile, 
+    NotificationPage
 } from "./pages";
 
 import { createContext, useEffect, useState } from "react";
@@ -30,6 +31,11 @@ const App = () => {
             <Routes>
                 <Route path='/' element={<Navbar />}>
                     <Route index element={<HomePage />} />
+                    <Route path="dashboard" element={<SideNavbar/>}>
+                        <Route path="blogs" element={<h1>Blogs</h1>}/>
+                        <Route path="notifications" element={<NotificationPage/>}/>
+                        <Route path="editor" element={<h1>editor page</h1>}/>
+                    </Route>
                     <Route path="settings" element={<SideNavbar/>}>
                         <Route path="edit-profile" element={<EditProfile/>}/>
                         <Route path="change-password" element={<ChangePassword/>}/>

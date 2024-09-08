@@ -1,8 +1,9 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import logo from '../imgs/logo.png'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { UserNavigationPanel } from '../components'
 import { UserContext } from '../App';
+import axios from 'axios';
 
 
 const Navbar = () => {
@@ -10,7 +11,7 @@ const Navbar = () => {
     const [searchBoxVisibility, setSearchBoxVisibility] = useState(false);
     const [navPanel, setNavPanel] = useState(false)
     const navigate=useNavigate()
-    const { userAuth, userAuth: { access_token, profile_img } } = useContext(UserContext);
+    const { userAuth, userAuth: { access_token, profile_img,new_notification },setUserAuth } = useContext(UserContext);
 
 
     const handleSearch=(e)=>{
@@ -21,6 +22,26 @@ const Navbar = () => {
             navigate(`/search/${query}`);
         }
     }
+
+    async function fetchNewNotification(){
+
+        await axios.get(import.meta.env.VITE_SERVER_DOMAIN+"/user/new-notification",{
+            withCredentials:true,
+            headers:{
+                "Authorization":`Bearer ${access_token}`
+            }
+        }).then(({data})=>{
+            setUserAuth({...userAuth,...data})
+        }).catch(({response:{data:{message}}})=>{
+            console.log(message)
+        })
+    }
+
+    useEffect(()=>{
+        if(access_token){
+            fetchNewNotification();
+        }
+    },[access_token])
 
     return (
         <>
@@ -57,9 +78,10 @@ const Navbar = () => {
                     {
                         access_token ?
                             <>
-                                <Link to={"/dashboard/notification"}>
-                                    <button className=' w-12 h-12 rounded-full bg-grey realtive hover:bg-black/10'>
+                                <Link to={"/dashboard/notifications"}>
+                                    <button className=' w-12 h-12 rounded-full bg-grey relative hover:bg-black/10'>
                                         <i className='fi fi-rr-bell text-xl block mt-1'></i>
+                                        {new_notification?<span className='absolute w-[10px] h-[10px] bg-red rounded-full top-2 right-2'></span>:""}
                                     </button>
                                 </Link>
 

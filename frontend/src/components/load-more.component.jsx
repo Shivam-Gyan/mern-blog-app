@@ -1,6 +1,6 @@
 
 
-const LoadMoreBlog = ({ state, fetchDataFun }) => {
+const LoadMoreBlog = ({ state, fetchDataFun,additionalParam }) => {
 
     // here we have to check two condition 
 
@@ -17,7 +17,7 @@ const LoadMoreBlog = ({ state, fetchDataFun }) => {
     if (state != null && state.results.length < state.totalDocs) {
         return (
             <button
-                onClick={() => fetchDataFun({ page: state.page + 1 })}
+                onClick={() => fetchDataFun({...additionalParam, page: state.page + 1 })}
                 className="text-darkgrey p-2 px-3 hover:bg-grey/50 rounded-md flex items-center gap-2"
             >
                 Load More

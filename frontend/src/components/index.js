@@ -17,6 +17,7 @@ import CommentConatiner from "./comments.component";
 import CommentCard from "./comment-card.component";
 import CommentField from "./comment-field.component";
 import SideNavbar from "./sidenavbar.component";
+import NotificationCard from "./notification-card.component";
 
 export {
     Navbar,
@@ -38,4 +39,5 @@ export {
     CommentCard,
     CommentField,
     SideNavbar,
+    NotificationCard,
 }

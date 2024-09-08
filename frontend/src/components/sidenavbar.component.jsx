@@ -7,7 +7,7 @@ import { PageNotFound } from "../pages";
 
 const SideNavbar = () => {
 
-    const { userAuth: { access_token } } = useContext(UserContext)
+    const { userAuth: { access_token,new_notification } } = useContext(UserContext)
 
 
     let currentPage = location.pathname.split('/')[2].replace('-', " ")
@@ -76,15 +76,18 @@ const SideNavbar = () => {
                                 Blogs
                             </NavLink>
                             <NavLink
-                                to={'/dashboard/notification'}
+                                to={'/dashboard/notifications'}
                                 onClick={(e) => setPage(e.target.innerText)}
                                 className={"sidebar-link"}
                             >
+                                <div className="relative">
                                 <i className="fi fi-rr-bell"></i>
+                                {new_notification?<span className='absolute w-2 h-2 bg-red rounded-full top-0 right-0'></span>:""}
+                                </div>
                                 Notification
                             </NavLink>
                             <NavLink
-                                to={'/dashboard/blogs'}
+                                to={'/dashboard/editor'}
                                 onClick={(e) => setPage(e.target.innerText)}
                                 className={"sidebar-link"}
                             >

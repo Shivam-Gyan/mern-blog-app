@@ -12,7 +12,7 @@ import BlogPostCard from "../components/blog-post.component.jsx"
 import LoadMoreBlog from "../components/load-more.component.jsx"
 import PageNotFound from "./404.page.jsx"
 
-const profileDataStructure = {
+export const profileDataStructure = {
     "personal_info": {
         "fullname": "",
         "email": "",
@@ -141,7 +141,7 @@ const ProiflePage = () => {
                                 {id == username ?
 
                                     <Link
-                                        to={'/setting/edit-profile'}
+                                        to={'/settings/edit-profile'}
                                         className="btn-light rounded-md"
                                     >
                                         Edit Profile

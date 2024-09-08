@@ -1,18 +1,20 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Navigate, NavLink, Outlet } from "react-router-dom";
 import { UserContext } from "../App";
+import Loader from "./loader.component";
+import { PageNotFound } from "../pages";
 
 
 const SideNavbar = () => {
 
     const { userAuth: { access_token } } = useContext(UserContext)
 
-    let currentPage = location.pathname.split('/')[2]
+
+    let currentPage = location.pathname.split('/')[2].replace('-', " ")
 
 
-    const [page, setPage] = useState(currentPage.replace('-', " "));
+    const [page, setPage] = useState(currentPage);
     const [showSideNav, setShowSideNav] = useState(false);
-
 
     let activeTabLine = useRef();
     let sideBarIconTab = useRef();
@@ -39,10 +41,10 @@ const SideNavbar = () => {
         }
     }, [page])
 
-    return (
-        access_token == null ? <Navigate to={'/signin'} /> :
-            <>
 
+    return (
+        access_token == null ? <PageNotFound/>:
+            <>
                 <section
                     className=" relative flex gap-10 py-0 m-0 max-md:flex-col"
                 >

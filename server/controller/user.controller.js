@@ -77,7 +77,16 @@ export const getNotificationByFilter=async(req,res,next)=>{
     .populate('reply',"comment")
     .sort({createdAt:-1})
     .select("createdAt type seen reply")
-    .then((notifications)=>{
+    .then(async(notifications)=>{
+
+       await Notification.updateMany(findQuery,{seen:true})
+        .skip(skip)
+        .limit(maxLimit)
+        .catch(err=>{
+            return next(new ErrorHandler(err.message, 500));
+
+        })
+
         return res.status(200).json({
            notifications
         });

@@ -5,7 +5,8 @@ import {
     Editor, HomePage, PageNotFound, 
     ProiflePage, SearchPage,BlogPage, 
     UserAuthForm, ChangePassword, EditProfile, 
-    NotificationPage
+    NotificationPage,
+    ManageBlogs
 } from "./pages";
 
 import { createContext, useEffect, useState } from "react";
@@ -32,7 +33,7 @@ const App = () => {
                 <Route path='/' element={<Navbar />}>
                     <Route index element={<HomePage />} />
                     <Route path="dashboard" element={<SideNavbar/>}>
-                        <Route path="blogs" element={<h1>Blogs</h1>}/>
+                        <Route path="blogs" element={<ManageBlogs/>}/>
                         <Route path="notifications" element={<NotificationPage/>}/>
                         <Route path="editor" element={<h1>editor page</h1>}/>
                     </Route>

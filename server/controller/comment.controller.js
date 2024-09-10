@@ -150,7 +150,7 @@ const deleteSpecificCommentById = async (_id) => {
                     console.log(err.message)
                 })
 
-            await Notification.findOneAndDelete({ reply: _id })
+            await Notification.findOneAndUpdate({ reply: _id },{$unset:{reply:1}})
                 .catch(err => {
                     console.log(err.message)
                 })

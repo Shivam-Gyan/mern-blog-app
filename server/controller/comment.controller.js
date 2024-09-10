@@ -7,7 +7,7 @@ export const createComment = async (req, res, next) => {
 
     let user_id = req.user;
 
-    let { _id, comment, replying_to, blog_author } = req.body
+    let { _id, comment, replying_to, blog_author,notification_id } = req.body
 
 
     if (!comment.trim().length) {
@@ -23,6 +23,8 @@ export const createComment = async (req, res, next) => {
     if (replying_to) {
         CommentObj.parent = replying_to
         CommentObj.isReply=true
+
+
     }
 
     await CommentObj.save().then(async (commentFile) => {
@@ -51,6 +53,15 @@ export const createComment = async (req, res, next) => {
                 .then(replyToComment => {
                     notificationObj.notification_for = replyToComment.commented_by
                 })
+
+            if(notification_id){
+
+                await Notification.findOneAndUpdate({_id:notification_id},{reply:commentFile._id})
+                .catch((err)=>{
+                    return next(new ErrorHandler(err.message, 500))
+
+                })
+            }
         }
 
         await notificationObj.save().then((notify) => {

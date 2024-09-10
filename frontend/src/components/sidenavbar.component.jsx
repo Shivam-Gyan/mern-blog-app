@@ -43,7 +43,7 @@ const SideNavbar = () => {
 
 
     return (
-        access_token == null ? <PageNotFound/>:
+        access_token == null ? <Navigate to={'/'}/>:
             <>
                 <section
                     className=" relative flex gap-10 py-0 m-0 max-md:flex-col"

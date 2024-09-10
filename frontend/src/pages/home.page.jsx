@@ -18,7 +18,12 @@ const HomePage = () => {
 
 
     const fetchLatestBlogs = async ({ page = 1 }) => {
-        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/latest-blogs', { page })
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/latest-blogs', { page },
+            {
+            withCredentials:true,
+            headers: { "Content-Type": "application/json" }
+        }
+    )
             .then(async ({ data: { blogs } }) => {
 
                 let formatData = await filterPaginationData({
@@ -35,7 +40,9 @@ const HomePage = () => {
     }
 
     const fetchTrendingBlog = async () => {
-        await axios.get(import.meta.env.VITE_SERVER_DOMAIN + '/blog/trending-blogs')
+        await axios.get(import.meta.env.VITE_SERVER_DOMAIN + '/blog/trending-blogs',{
+            withCredentials:true
+        })
             .then(({ data: { blogs } }) => {
                 setTrendingBlogs(blogs)
             })

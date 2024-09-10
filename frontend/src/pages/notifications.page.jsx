@@ -5,13 +5,14 @@ import { filterPaginationData } from "../common/filter-pagination-data";
 import Loader from "../components/loader.component";
 import { AnimationWrapper } from "../common";
 import { LoadMoreBlog, NoDataMessage, NotificationCard } from "../components";
+import {toast} from 'react-hot-toast'
 
 
 const NotificationPage = () => {
 
     const [filter, setFilter] = useState("all");
 
-    let { userAuth: { access_token } } = useContext(UserContext);
+    let {userAuth, userAuth: { access_token,new_notification } ,setUserAuth} = useContext(UserContext);
 
 
     const [notifications, setNotifications] = useState(null)
@@ -30,6 +31,8 @@ const NotificationPage = () => {
             }
         }).then(async ({ data: { notifications: data } }) => {
 
+            setUserAuth({...userAuth,new_notification:false})
+
             let formatData = await filterPaginationData({
                 state: notifications,
                 data: data,
@@ -41,9 +44,8 @@ const NotificationPage = () => {
 
 
             setNotifications(formatData)
-            //setUserAuth({...userAuth,...data})
-        }).catch((err) => {
-            console.log(err)
+        }).catch(({response:{data}}) => {
+            toast.error(data.message)
         })
     }
 
@@ -54,8 +56,6 @@ const NotificationPage = () => {
     }, [access_token, filter])
 
     return (
-
-
         <div>
             <h1 className="max-md:hidden text-dark-grey text-xl ">Recent Notification</h1>
 
@@ -76,22 +76,22 @@ const NotificationPage = () => {
             </div>
 
             {
-                notifications==null?<Loader/>:
-                <>
-                {
-                    notifications.results.length?
-                    notifications.results.map((notification,i)=>{
-                        return (
-                            <AnimationWrapper key={i} transition={{delay:i*0.08}}>
-                                <NotificationCard data={notification} index={i} notificationState={{notifications,setNotifications}} />
-                            </AnimationWrapper>
-                        )
-                    }):<NoDataMessage message={`not any ${filter} available`}/>
-                }
+                notifications == null ? <Loader /> :
+                    <>
+                        {
+                            notifications.results.length ?
+                                notifications.results.map((notification, i) => {
+                                    return (
+                                        <AnimationWrapper key={i} transition={{ delay: i * 0.08 }}>
+                                            <NotificationCard data={notification} index={i} notificationState={{ notifications, setNotifications }} />
+                                        </AnimationWrapper>
+                                    )
+                                }) : <NoDataMessage message={`not any ${filter} available`} />
+                        }
 
-                {/* more data loader function button */}
-                <LoadMoreBlog state={notifications} fetchDataFun={fetchNotificationByFilter} additionalParam={{deletedDocCount:notifications.deletedDocCount}}/>
-                </>
+                        {/* more data loader function button */}
+                        <LoadMoreBlog state={notifications} fetchDataFun={fetchNotificationByFilter} additionalParam={{ deletedDocCount: notifications.deletedDocCount }} />
+                    </>
             }
         </div>
     )

@@ -18,10 +18,6 @@ const NotificationCommentField=({_id,blog_author,index=undefined,replyingTo=unde
     // in this notification all the data which is fetched notification from server stored it has {page,results(array of data),totalDoc}
     let {notifications,notifications:{results},setNotifications}=notification_data
 
-    // console.log({
-    //     message:"notfication inntial data",
-    //     notifications
-    // })
 
     const handleAction = async () => {
 

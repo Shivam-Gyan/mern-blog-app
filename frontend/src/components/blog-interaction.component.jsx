@@ -42,7 +42,6 @@ const BlogInteraction = () => {
 
         await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/like-blog", { _id, isLikedByUser },
             {
-                withCredentials: true,
                 headers: {
                     "Authorization": `Bearer ${access_token}`
                 }
@@ -55,7 +54,6 @@ const BlogInteraction = () => {
 
     async function checkUserLiked() {
         await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/isliked-by-user', { _id }, {
-            withCredentials: true,
             headers: {
                 "Authorization": `Bearer ${access_token}`
             }

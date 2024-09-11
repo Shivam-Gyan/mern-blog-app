@@ -31,7 +31,6 @@ const NotificationCard = ({ data, index, notificationState }) => {
         await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/comment/delete-comment", {
             _id:comment_id
         }, {
-            withCredentials:true,
             headers: {
                 "Authorization": `Bearer ${access_token}`
             }

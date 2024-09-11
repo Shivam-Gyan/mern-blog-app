@@ -26,7 +26,6 @@ const Navbar = () => {
     async function fetchNewNotification(){
 
         await axios.get(import.meta.env.VITE_SERVER_DOMAIN+"/user/new-notification",{
-            withCredentials:true,
             headers:{
                 "Authorization":`Bearer ${access_token}`
             }

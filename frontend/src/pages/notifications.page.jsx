@@ -25,7 +25,7 @@ const NotificationPage = () => {
         await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/user/get-filter-notification", {
             page, filter, deletedDocCount
         }, {
-            withCredentials: true,
+           
             headers: {
                 "Authorization": `Bearer ${access_token}`
             }

@@ -9,9 +9,8 @@ import { AnimationWrapper } from "../common"
 
 export const fetchComment = async ({ skip = 0, blog_id, setParentCommentCountFun, comment_array = null }) => {
     let res;
-    await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/comment/get-blog-comments", { blog_id, skip }, {
-        withCredentials: true
-    }).then(({ data }) => {
+    await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/comment/get-blog-comments", { blog_id, skip })
+    .then(({ data }) => {
 
         data.map(comment => {
             comment.childrenLevel = 0

@@ -32,7 +32,7 @@ const NotificationCommentField=({_id,blog_author,index=undefined,replyingTo=unde
 
         let loading=toast.loading("replying...")
         await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/comment/create-comment", { _id, comment, blog_author:user_id,replying_to:replyingTo,notification_id }, {
-            withCredentials: true,
+           
             headers: {
                 "Authorization": `Bearer ${access_token}`
             }

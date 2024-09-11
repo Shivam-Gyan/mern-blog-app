@@ -19,15 +19,12 @@ const UserAuthForm = ({ type }) => {
 
     // server request handling function 
     const handleRequest = async (serverRoute, formData) => {
-        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/auth" + serverRoute, formData, {
-            withCredentials: true,
-            headers: { "Content-Type": "application/json" }
-        })
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/auth" + serverRoute, formData)
             .then(({ data }) => {
                 toast.success(data.message)
                 storeStorage("user", JSON.stringify(data.user))
                 setUserAuth(data.user);
-            }).catch(({response:{data:{message}}}) => {
+            }).catch(({ response: { data: { message } } }) => {
                 toast.error(message)
             })
     }

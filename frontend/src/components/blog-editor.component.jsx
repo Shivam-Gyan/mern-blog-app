@@ -25,7 +25,6 @@ const BlogEditor = () => {
         let banner = e.target.files[0]
         let UploadingBanner = toast.loading("Uploading...")
 
-
         if (banner) {
             await UploadToCloudinary(banner)
                 .then(({ image_url }) => {
@@ -33,11 +32,12 @@ const BlogEditor = () => {
                     setBlog({ ...blog, banner: image_url })
                     toast.dismiss(UploadingBanner)
                 })
-                .catch((err) => {
+                .catch(({response:{data}}) => {
                     toast.dismiss(UploadingBanner)
-                    toast.error(err.message)
+                    toast.error(data.message)
                 })
         }
+        // toast.dismiss(UploadingBanner)
     }
 
     const handlePublish = () => {
@@ -58,8 +58,8 @@ const BlogEditor = () => {
                     } else {
                         return toast.error("write something in blog to publish it")
                     }
-                }).catch(err => {
-                    console.log(err.message)
+                }).catch(({response:{data}}) => {
+                    toast.error(data.message)
                 })
         }
     }
@@ -102,9 +102,9 @@ const BlogEditor = () => {
                     setTimeout(() => {
                         navigate('/')
                     }, 500)
-                }).catch((err) => {
+                }).catch(({response:{data}}) => {
                     toast.dismiss(loading)
-                    toast.error(err.message)
+                    toast.error(data.message)
                 })
             })
         } 

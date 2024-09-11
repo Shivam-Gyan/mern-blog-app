@@ -18,12 +18,7 @@ const HomePage = () => {
 
 
     const fetchLatestBlogs = async ({ page = 1 }) => {
-        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/latest-blogs', { page },
-            {
-            withCredentials:true,
-            headers: { "Content-Type": "application/json" }
-        }
-    )
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/latest-blogs', { page })
             .then(async ({ data: { blogs } }) => {
 
                 let formatData = await filterPaginationData({
@@ -40,9 +35,7 @@ const HomePage = () => {
     }
 
     const fetchTrendingBlog = async () => {
-        await axios.get(import.meta.env.VITE_SERVER_DOMAIN + '/blog/trending-blogs',{
-            withCredentials:true
-        })
+        await axios.get(import.meta.env.VITE_SERVER_DOMAIN + '/blog/trending-blogs')
             .then(({ data: { blogs } }) => {
                 setTrendingBlogs(blogs)
             })
@@ -52,10 +45,7 @@ const HomePage = () => {
     }
 
     const fetchBlogByCategory = async ({ page = 1 }) => {
-        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/search-blogs', { tag: pageState, page }, {
-            withCredentials: true,
-            headers: { "Content-Type": "application/json" }
-        })
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/search-blogs', { tag: pageState, page })
             .then(async ({ data: { blogs } }) => {
                 let formatData = await filterPaginationData({
                     state: fetchBlogs,

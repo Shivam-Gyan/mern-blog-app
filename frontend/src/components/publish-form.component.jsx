@@ -48,7 +48,6 @@ const PublishFromPanel = () => {
             {...blogObj,id:blog_id},
             {
                 headers: {
-                    withCredentials: true,
                     'Authorization': `Bearer ${access_token}`
                 }
             }

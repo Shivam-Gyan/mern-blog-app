@@ -29,15 +29,15 @@ const Editor = () => {
     const [textEditor, setTextEditor] = useState({ isReady: false });
     const [loading, setLoading] = useState(true)
 
-    async function fetchBlogByBlogId(){
-        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/get-blog", { blog_id, draft: true, mode: 'edit' }, { withCredentials: true })
-        .then(({ data }) => {
-            console.log(data)
-            setBlog(data)
-            setLoading(false)
-        }).catch((err) => {
-            console.log(err.message)
-        })
+    async function fetchBlogByBlogId() {
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/get-blog", { blog_id, draft: true, mode: 'edit' })
+            .then(({ data }) => {
+                console.log(data)
+                setBlog(data)
+                setLoading(false)
+            }).catch((err) => {
+                console.log(err.message)
+            })
     }
 
     useEffect(() => {
@@ -45,9 +45,9 @@ const Editor = () => {
         if (!blog_id) {
             return setLoading(false)
         }
-        
+
         fetchBlogByBlogId();
-        
+
 
     }, [])
 

@@ -85,9 +85,8 @@ const CommentCard = ({ index, leftVal, commentData }) => {
         if (commentArr[currentIndex].children.length) {
             HideReplies();
 
-            await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/comment/get-replies", { _id: commentArr[currentIndex]._id, skip }, {
-                withCredentials: true
-            }).then(({ data: { replies } }) => {
+            await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/comment/get-replies", { _id: commentArr[currentIndex]._id, skip })
+            .then(({ data: { replies } }) => {
 
                 commentArr[currentIndex].isReplyLoaded = true;
 
@@ -110,7 +109,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
         e.target.setAttribute('disable', true)
 
         await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/comment/delete-comment", { _id }, {
-            withCredentials: true,
             headers: {
                 "Authorization": `Bearer ${access_token}`
             }

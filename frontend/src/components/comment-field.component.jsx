@@ -23,7 +23,7 @@ const CommentField = ({ action = "comment",index=undefined,replyingTo=undefined,
         }
 
         await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/comment/create-comment", { _id, comment, blog_author,replying_to:replyingTo }, {
-            withCredentials: true,
+            
             headers: {
                 "Authorization": `Bearer ${access_token}`
             }

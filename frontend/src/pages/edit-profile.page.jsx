@@ -54,7 +54,7 @@ const EditProfile = () => {
                     await axios.patch(import.meta.env.VITE_SERVER_DOMAIN + '/auth/upload-image', {
                         image_url
                     }, {
-                        withCredentials: true,
+                        
                         headers: {
                             "Authorization": `Bearer ${access_token}`
                         }
@@ -141,7 +141,7 @@ const EditProfile = () => {
                     github
                 }
             }, {
-            withCredentials: true,
+            
             headers: {
                 "Authorization": `Bearer ${access_token}`
             }

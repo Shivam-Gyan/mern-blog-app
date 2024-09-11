@@ -34,24 +34,23 @@ const BlogPage = () => {
     let { title, banner, tags, des, content, author: { personal_info: { fullname, username: author_username, profile_img } }, publishedAt } = fetchedBlog
 
     const fetchBlogByBlogId = async () => {
-        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/get-blog', { blog_id }, {
-            withCredentials: true
-        }).then(async ({ data }) => {
+        await axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/blog/get-blog', { blog_id })
+            .then(async ({ data }) => {
 
-            data.comments = await fetchComment({ blog_id: data._id, setParentCommentCountFun: setParentCommentLoad })
+                data.comments = await fetchComment({ blog_id: data._id, setParentCommentCountFun: setParentCommentLoad })
 
-            setFetchedBlog(data)
-            await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/search-blogs", {
-                tag: data.tags[0], limit: 5, eliminate_blog: blog_id
-            }, { withCredentials: true })
-                .then(({ data }) => {
-                    setSimilarBlog(data.blogs)
+                setFetchedBlog(data)
+                await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/search-blogs", {
+                    tag: data.tags[0], limit: 5, eliminate_blog: blog_id
                 })
-            setLoading(false)
-        }).catch((err) => {
-            console.log(err.message)
-            setLoading(false)
-        })
+                    .then(({ data }) => {
+                        setSimilarBlog(data.blogs)
+                    })
+                setLoading(false)
+            }).catch((err) => {
+                console.log(err.message)
+                setLoading(false)
+            })
     }
 
     useEffect(() => {

@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { getDay } from "../common/date";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { UserContext } from "../App";
+import { deleteBlog } from "../pages/manage-blogs.page";
 
 
 
@@ -39,7 +41,14 @@ const ManagePublishBlogCard = ({ blog }) => {
 
     let { banner, blog_id, title, publishedAt, activity } = blog;
 
+    const {userAuth:{access_token}}=useContext(UserContext)
+
     const [showStat, setShowStat] = useState(false)
+
+
+    const handleDelete=(e)=>{
+        deleteBlog(blog,access_token,e.target);
+    }
 
 
     return (
@@ -64,7 +73,7 @@ const ManagePublishBlogCard = ({ blog }) => {
 
                         <button onClick={() => setShowStat(prev => !prev)} className="lg:hidden border-grey p-1 px-2 rounded-md bg-grey ">Stats</button>
 
-                        <button className="border-grey p-1 px-2 rounded-md bg-grey">
+                        <button onClick={handleDelete} className="border-grey p-1 px-2 rounded-md bg-grey">
                             <i className="fi fi-rr-trash pointer-events-none"></i>
                         </button>
 

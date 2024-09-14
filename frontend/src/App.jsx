@@ -35,7 +35,6 @@ const App = () => {
                     <Route path="dashboard" element={<SideNavbar/>}>
                         <Route path="blogs" element={<ManageBlogs/>}/>
                         <Route path="notifications" element={<NotificationPage/>}/>
-                        <Route path="editor" element={<h1>editor page</h1>}/>
                     </Route>
                     <Route path="settings" element={<SideNavbar/>}>
                         <Route path="edit-profile" element={<EditProfile/>}/>

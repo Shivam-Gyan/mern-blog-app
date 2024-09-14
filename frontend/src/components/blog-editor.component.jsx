@@ -100,7 +100,7 @@ const BlogEditor = () => {
                     toast.success("Saved to Draft 👍")
         
                     setTimeout(() => {
-                        navigate('/')
+                        navigate('/dashboard/blogs?tab=draft')
                     }, 500)
                 }).catch(({response:{data}}) => {
                     toast.dismiss(loading)

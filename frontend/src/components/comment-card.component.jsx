@@ -193,7 +193,7 @@ const CommentCard = ({ index, leftVal, commentData }) => {
                     {
                         logged_in_username == commented_by_username || logged_in_username == blog_author_username ?
                             <button
-                                className="p-2 px-3 rounded-md border border-grey ml-auto hover:text-red flex items-center"
+                                className="p-2 px-3 rounded-md border bg-grey border-grey ml-auto hover:text-red hover:bg-grey/50 flex items-center"
                                 onClick={deleteComment}
                             >
                                 <i className="fi fi-rr-trash pointer-events-none"></i>

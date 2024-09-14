@@ -9,14 +9,13 @@ import { BlogContext } from "../pages/blog.page";
 const CommentField = ({ action = "comment",index=undefined,replyingTo=undefined,setReplying}) => {
 
     const [comment, setComment] = useState("")
-    const navigate = useNavigate()
 
     let { userAuth: { access_token,fullname,profile_img,username } } = useContext(UserContext);
     let {fetchedBlog, fetchedBlog: { _id,activity,activity:{total_comments,total_parent_comments}, author,comments,comments:{results:commentsArr}, author: { _id: blog_author } } ,setFetchedBlog,setParentCommentLoad} = useContext(BlogContext)
 
     const handleAction = async () => {
         if (!access_token) {
-           return toast.error("redirecting to login page")
+           return toast.error("Login to leave a comment")
         }
         if (!comment.length) {
             return toast.error("Write something to leave comment...")
@@ -73,8 +72,8 @@ const CommentField = ({ action = "comment",index=undefined,replyingTo=undefined,
             setParentCommentLoad(prev=>prev+1)
             
 
-        }).catch(err => {
-            console.log(err.message)
+        }).catch(({response:{data}}) => {
+            console.log(data.message)
         })
     }
 
@@ -88,7 +87,7 @@ const CommentField = ({ action = "comment",index=undefined,replyingTo=undefined,
                     setComment(e.target.value)
                 }}
 
-                placeholder="Leave a comment..."
+                placeholder={action=='Reply'?`@${username}`:"Leave a comment"}
                 className="input-box placeholder:text-dark-grey pl-6 resize-none h-[150px] overflow-auto"
             ></textarea>
 

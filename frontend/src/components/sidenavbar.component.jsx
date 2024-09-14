@@ -1,8 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Navigate, NavLink, Outlet } from "react-router-dom";
 import { UserContext } from "../App";
-import Loader from "./loader.component";
-import { PageNotFound } from "../pages";
 
 
 const SideNavbar = () => {
@@ -87,8 +85,10 @@ const SideNavbar = () => {
                                 Notification
                             </NavLink>
                             <NavLink
-                                to={'/dashboard/editor'}
-                                onClick={(e) => setPage(e.target.innerText)}
+                                to={'/editor'}
+                                onClick={(e) => {
+                                    setPage(e.target.innerText)
+                                }}
                                 className={"sidebar-link"}
                             >
                                 <i className="fi fi-rr-file-edit"></i>

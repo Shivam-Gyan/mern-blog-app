@@ -4,9 +4,56 @@ import axios from 'axios'
 import { UserContext } from '../App'
 import { filterPaginationData } from "../common/filter-pagination-data";
 import { toast } from "react-hot-toast";
-import { InPagenavigation, ManagePublishBlogCard, NoDataMessage } from "../components";
+import { InPagenavigation, LoadMoreBlog, ManageDraftBlogCard, ManagePublishBlogCard, NoDataMessage } from "../components";
 import Loader from "../components/loader.component";
 import { AnimationWrapper } from "../common";
+import { useSearchParams } from "react-router-dom";
+
+
+
+// function to delete blog
+
+export const deleteBlog = async (blog, access_token, target) => {
+
+    let { index, setStateFun, blog_id } = blog;
+
+
+    console.log("delete")
+
+    target.setAttribute("disabled", true);
+
+    await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/user/delete-user-blog", {
+        blog_id
+    }, {
+        headers: {
+            "Authorization": `Bearer ${access_token}`
+        }
+    }).then(({ data: { message } }) => {
+        toast.success(message)
+        target.removeAttribute("disabled")
+
+        setStateFun(prev => {
+
+            let { deletedDocCount, totalDocs, results } = prev
+            results.splice(index, 1)
+
+            if (!deletedDocCount) {
+                deletedDocCount = 0;
+            }
+            if (!results.length && (totalDocs - 1) > 0) {
+                return null
+            }
+
+            return { ...prev, totalDocs: totalDocs - 1, deletedDocCount: deletedDocCount + 1 }
+        })
+    }).catch(({ response: { data } }) => {
+        toast.error(data.message)
+        console.log(data.message)
+    })
+}
+
+
+
 
 
 const ManageBlogs = () => {
@@ -16,6 +63,8 @@ const ManageBlogs = () => {
     const [userBlogs, setUserBlogs] = useState(null);
     const [drafts, setDrafts] = useState(null)
     const [query, setQuery] = useState("");
+
+    let activeTab=useSearchParams()[0].get("tab");
 
 
     const fetchBlogs = async ({ page, draft, deletedDocCount = 0 }) => {
@@ -93,7 +142,7 @@ const ManageBlogs = () => {
                 <i className='fi fi-rr-search absolute right-[10%] md:pointer-events-none md:left-5 top-1/2 -translate-y-1/2 text-xl text-dark-grey'></i>
             </div>
 
-            <InPagenavigation routes={["Published Blogs", "Drafts"]}>
+            <InPagenavigation routes={["Published Blogs", "Drafts"]} defaultIndex={activeTab=="draft"?1:0}>
 
                 {
                     // published blogs
@@ -105,16 +154,37 @@ const ManageBlogs = () => {
                                     userBlogs.results.map((blog, i) => {
                                         return (
                                             <AnimationWrapper key={i} transition={{ delay: i * 0.04 }}>
-                                                <ManagePublishBlogCard blog={blog}/>
+                                                <ManagePublishBlogCard blog={{ ...blog, index: i, setStateFun: setUserBlogs }} />
                                             </AnimationWrapper>
                                         )
                                     })
                                 }
+                                <LoadMoreBlog state={userBlogs} fetchDataFun={fetchBlogs} additionalParam={{ draft: false, deletedDocCount: userBlogs.deletedDocCount }} />
                             </>
                             : <NoDataMessage message={"No blogs published yet"} />
 
                 }
-                <h1>This is Drafts Blogs</h1>
+
+                {/* <h1>This is Drafts Blogs</h1> */}
+
+                {
+                    drafts == null ? <Loader /> :
+                        drafts.results.length ?
+                            <>
+                                {
+                                    drafts.results.map((draft, i) => {
+                                        return (
+                                            <AnimationWrapper key={i} transition={{ delay: i * 0.04 }}>
+                                                <ManageDraftBlogCard blog={{ ...draft, index: i, setStateFun: setDrafts }} />
+                                            </AnimationWrapper>
+                                        )
+                                    })
+                                }
+
+                                <LoadMoreBlog state={drafts} fetchDataFun={fetchBlogs} additionalParam={{ draft: true, deletedDocCount: drafts.deletedDocCount }} />
+                            </>
+                            : <NoDataMessage message={"No draft blogs"} />
+                }
 
             </InPagenavigation>
 

@@ -20,6 +20,7 @@ import SideNavbar from "./sidenavbar.component";
 import NotificationCard from "./notification-card.component";
 import NotificationCommentField from "./notification-comment-field.component";
 import ManagePublishBlogCard from "./manage-blogcard.component"; 
+import ManageDraftBlogCard from "./manage-draftblog.component";
 
 export {
     Navbar,
@@ -44,4 +45,6 @@ export {
     NotificationCard,
     NotificationCommentField,
     ManagePublishBlogCard,
+    ManageDraftBlogCard,
+
 }

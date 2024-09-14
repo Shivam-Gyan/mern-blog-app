@@ -40,6 +40,10 @@ const NotificationCard = ({ data, index, notificationState }) => {
             }else{
                 delete results[index].reply
             }
+
+            if(!deletedDocCount){
+                deletedDocCount=0;
+            }
             toast.success(message)
             target.removeAttribute("disabled")
             

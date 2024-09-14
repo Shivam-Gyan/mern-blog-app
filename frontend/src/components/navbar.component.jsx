@@ -10,37 +10,37 @@ const Navbar = () => {
 
     const [searchBoxVisibility, setSearchBoxVisibility] = useState(false);
     const [navPanel, setNavPanel] = useState(false)
-    const navigate=useNavigate()
-    const { userAuth, userAuth: { access_token, profile_img,new_notification },setUserAuth } = useContext(UserContext);
+    const navigate = useNavigate()
+    const { userAuth, userAuth: { access_token, profile_img, new_notification }, setUserAuth } = useContext(UserContext);
 
 
-    const handleSearch=(e)=>{
-        let query=e.target.value;
+    const handleSearch = (e) => {
+        let query = e.target.value;
 
-        if(e.keyCode==13 && query.length){
-            console.log(query)
+        if (e.keyCode == 13 && query.length) {
+            setSearchBoxVisibility(false)
             navigate(`/search/${query}`);
         }
     }
 
-    async function fetchNewNotification(){
+    async function fetchNewNotification() {
 
-        await axios.get(import.meta.env.VITE_SERVER_DOMAIN+"/user/new-notification",{
-            headers:{
-                "Authorization":`Bearer ${access_token}`
+        await axios.get(import.meta.env.VITE_SERVER_DOMAIN + "/user/new-notification", {
+            headers: {
+                "Authorization": `Bearer ${access_token}`
             }
-        }).then(({data})=>{
-            setUserAuth({...userAuth,...data})
-        }).catch(({response:{data:{message}}})=>{
+        }).then(({ data }) => {
+            setUserAuth({ ...userAuth, ...data })
+        }).catch(({ response: { data: { message } } }) => {
             console.log(message)
         })
     }
 
-    useEffect(()=>{
-        if(access_token){
+    useEffect(() => {
+        if (access_token) {
             fetchNewNotification();
         }
-    },[access_token])
+    }, [access_token])
 
     return (
         <>
@@ -50,10 +50,15 @@ const Navbar = () => {
                     <img className='w-full' src={logo} alt="" />
                 </Link>
 
-                <div className={`absolute w-full md:w-auto  left-0 py-4 px-[5vw] top-full mt-0.5 border-b border-grey md:border-0  md:block md:relative md:inset-0 md:p-0 md:show ${searchBoxVisibility ? 'show' : 'hide'}`}>
+                <div
+                    className={`absolute w-full md:w-auto  left-0 py-4 px-[5vw] top-full mt-0.5 border-b border-grey md:border-0  md:block md:relative md:inset-0 md:p-0 md:show ${searchBoxVisibility ? 'show' : 'hide'}`}
+                >
                     <input
                         type="text"
                         onKeyDown={handleSearch}
+                        onBlur={() => {
+                            setSearchBoxVisibility(false)
+                        }}
                         placeholder='Search'
                         className='w-full  bg-grey md:w-auto p-3 md:pl-12  pl-6 pr-[12%] md:pr-6 rounded-full placeholder:text-dark-grey' />
 
@@ -62,7 +67,10 @@ const Navbar = () => {
 
 
                 <div className='flex items-center gap-3 md:gap-6 ml-auto'>
-                    <button onClick={() => setSearchBoxVisibility(prev => !prev)} className={`md:hidden w-12 h-12 rounded-full bg-grey flex items-center justify-center `}>
+                    <button
+                        onClick={() => setSearchBoxVisibility(prev => !prev)}
+                        className={`md:hidden w-12 h-12 rounded-full bg-grey flex items-center justify-center `}
+                    >
                         <i className='fi fi-rr-search text-xl '></i>
                     </button>
 
@@ -80,7 +88,7 @@ const Navbar = () => {
                                 <Link to={"/dashboard/notifications"}>
                                     <button className=' w-12 h-12 rounded-full bg-grey relative hover:bg-black/10'>
                                         <i className='fi fi-rr-bell text-xl block mt-1'></i>
-                                        {new_notification?<span className='absolute w-[10px] h-[10px] bg-red rounded-full top-2 right-2'></span>:""}
+                                        {new_notification ? <span className='absolute w-[10px] h-[10px] bg-red rounded-full top-2 right-2'></span> : ""}
                                     </button>
                                 </Link>
 
@@ -97,8 +105,8 @@ const Navbar = () => {
                                         <img src={profile_img} alt="" className='w-full h-full object-cover rounded-full' />
                                     </button>
 
-                                    {navPanel?
-                                        <UserNavigationPanel />:""
+                                    {navPanel ?
+                                        <UserNavigationPanel /> : ""
                                     }
 
                                 </div>

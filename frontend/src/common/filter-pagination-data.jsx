@@ -22,7 +22,8 @@ export const filterPaginationData = async ({ create_new_arr = false, state, data
 
     if(user){
         headers.headers={
-            "Authorization":`Bearer ${user}`
+            "Authorization":`Bearer ${user}`,
+            
         }
     }
 

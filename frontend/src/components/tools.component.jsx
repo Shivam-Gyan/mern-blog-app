@@ -69,5 +69,5 @@ export const tools = {
     },
     marker: Marker,
     inlinecode: InlineCode,
-    link: Link
+    linkTool: Link
 }

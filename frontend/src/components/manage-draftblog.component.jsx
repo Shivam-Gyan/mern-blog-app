@@ -23,7 +23,7 @@ const ManageDraftBlogCard = ({ blog}) => {
             <h1 className="blog-index text-center pl-4 md:pl-6 flex-none ">{index < 10 ? "0" + (index+1) : (index+1)}</h1>
             <div>
                 <h1 className="blog-title mb-3">{title}</h1>
-                <p className="line-clamp-2 font-gelasio">{des.length ? des : "No Description"}</p>
+                <p className="line-clamp-2 font-gelasio">{des?.length ? des : "No Description"}</p>
 
                 <div className="flex items-center gap-6 mt-3">
                     <Link to={`/editor/${blog_id}`} className=" bg-grey px-4 py-1 hover:bg-dark-grey/10 rounded-md">

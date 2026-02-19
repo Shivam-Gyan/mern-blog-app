@@ -5,6 +5,7 @@ import Blog from '../Schema/Blog.js'
 import User from '../Schema/User.js'
 import Notification from '../Schema/Notification.js';
 import Comment from '../Schema/Comment.js'
+import { convertMarkdownToEditorJs } from '../utils/mdToEditor.js';
 
 // create Url of Uploaded image
 export const UplaodCloudinary = async (req, res, next) => {
@@ -336,7 +337,56 @@ export const checkIsLikedByUser = async (req, res, next) => {
 }
 
 
+// Convert Markdown to Editor.js blocks format and save to DB
+export const AutomaticBlogCreation = async (req, res, next) => {
 
+    const authorId = "6995d1c7c153f897491186c8";
 
+    const markdown = `# AI Summit 2026 in India: A Viral, Robotic, and Hilarious Recap`;
 
+    try {
+        const editorData = convertMarkdownToEditorJs(markdown);
+
+        // Extract title from first header block
+        const titleBlock = editorData.blocks.find(b => b.type === "header");
+        const title = titleBlock ? titleBlock.data.text : "Untitled Blog";
+
+        // Extract first paragraph as description (max 200 chars)
+        const desBlock = editorData.blocks.find(b => b.type === "paragraph");
+        const des = desBlock ? desBlock.data.text.replace(/<[^>]*>/g, "").substring(0, 200) : "";
+
+        // Generate blog_id
+        const blog_id = title.replace(/[^a-zA-z0-9]/g, " ").replace(/\s+/g, "-").trim() + nanoid();
+
+        const blog = new Blog({
+            title,
+            banner: "",
+            blog_id,
+            des,
+            content: editorData,
+            tags: ["ai", "ai-summit", "india", "2026", "memes"],
+            author: authorId,
+            draft: true,
+        });
+
+        await blog.save();
+
+        await User.findOneAndUpdate(
+            { _id: authorId },
+            {
+                $inc: { "account_info.total_posts": 1 },
+                $push: { blogs: blog._id },
+            }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Blog created from markdown and saved to DB",
+            id: blog.blog_id,
+            content: editorData,
+        });
+    } catch (err) {
+        return next(new ErrorHandler("Failed to convert/save markdown blog: " + err.message, 500));
+    }
+};
 

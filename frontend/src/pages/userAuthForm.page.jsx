@@ -24,7 +24,8 @@ const UserAuthForm = ({ type }) => {
                 toast.success(data.message)
                 storeStorage("user", JSON.stringify(data.user))
                 setUserAuth(data.user);
-            }).catch(({ response: { data: { message } } }) => {
+            }).catch(({ response }) => {
+                message = response?.data?.message
                 toast.error(message)
             })
     }

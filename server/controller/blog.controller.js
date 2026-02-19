@@ -340,21 +340,20 @@ export const checkIsLikedByUser = async (req, res, next) => {
 // Convert Markdown to Editor.js blocks format and save to DB
 export const AutomaticBlogCreation = async (req, res, next) => {
 
-    const authorId = "6995d1c7c153f897491186c8";
+    const authorId = req.user;
 
-    const markdown = `# AI Summit 2026 in India: A Viral, Robotic, and Hilarious Recap`;
+    const {
+        title = 'Untitled Blog',
+        tags = ['auto-generated'],
+        des = '',  
+        markdown = `# Hello World\nThis is a blog created from markdown!` 
+    } = req.body
 
     try {
         const editorData = convertMarkdownToEditorJs(markdown);
 
         // Extract title from first header block
         const titleBlock = editorData.blocks.find(b => b.type === "header");
-        const title = titleBlock ? titleBlock.data.text : "Untitled Blog";
-
-        // Extract first paragraph as description (max 200 chars)
-        const desBlock = editorData.blocks.find(b => b.type === "paragraph");
-        const des = desBlock ? desBlock.data.text.replace(/<[^>]*>/g, "").substring(0, 200) : "";
-
         // Generate blog_id
         const blog_id = title.replace(/[^a-zA-z0-9]/g, " ").replace(/\s+/g, "-").trim() + nanoid();
 
@@ -364,7 +363,7 @@ export const AutomaticBlogCreation = async (req, res, next) => {
             blog_id,
             des,
             content: editorData,
-            tags: ["ai", "ai-summit", "india", "2026", "memes"],
+            tags: tags || ["ai","auto-generated"],
             author: authorId,
             draft: true,
         });
@@ -381,9 +380,8 @@ export const AutomaticBlogCreation = async (req, res, next) => {
 
         return res.status(200).json({
             success: true,
-            message: "Blog created from markdown and saved to DB",
-            id: blog.blog_id,
-            content: editorData,
+            message: "Congratulations! Your blog has been successfully created and saved as a draft to Feather Fables.",
+            blog_id: blog.blog_id,
         });
     } catch (err) {
         return next(new ErrorHandler("Failed to convert/save markdown blog: " + err.message, 500));

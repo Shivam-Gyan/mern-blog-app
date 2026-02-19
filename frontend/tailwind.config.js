@@ -11,7 +11,9 @@ export default {
             'red': '#FF4E4E',
             'transparent': 'transparent',
             'twitter': '#1DA1F2',
-            'purple': '#8B46FF'
+            'purple': '#8B46FF',
+            'ight-green': '#22C55E',
+            'green': '#86EFAC',
         },
 
         fontSize: {

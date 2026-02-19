@@ -32,7 +32,7 @@ const Editor = () => {
     async function fetchBlogByBlogId() {
         await axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/get-blog", { blog_id, draft: true, mode: 'edit' })
             .then(({ data }) => {
-                console.log(data)
+                // console.log(data)
                 setBlog(data)
                 setLoading(false)
             }).catch((err) => {

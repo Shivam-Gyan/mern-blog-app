@@ -21,6 +21,8 @@ import NotificationCard from "./notification-card.component";
 import NotificationCommentField from "./notification-comment-field.component";
 import ManagePublishBlogCard from "./manage-blogcard.component"; 
 import ManageDraftBlogCard from "./manage-draftblog.component";
+import CreateTokenModal from "./create-token-modal.component";
+import DeleteTokenModal from "./delete-token-modal.component";
 
 export {
     Navbar,
@@ -46,5 +48,7 @@ export {
     NotificationCommentField,
     ManagePublishBlogCard,
     ManageDraftBlogCard,
+    CreateTokenModal,
+    DeleteTokenModal,
 
 }

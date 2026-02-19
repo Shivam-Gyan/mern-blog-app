@@ -108,6 +108,15 @@ const SideNavbar = () => {
                             </NavLink>
 
                             <NavLink
+                                to={'/settings/integration-token'}
+                                onClick={(e) => setPage(e.target.innerText)}
+                                className={"sidebar-link"}
+                            >
+                                <i className="fi fi-rr-user-key"></i>
+                                Integration Token
+                            </NavLink>
+
+                            <NavLink
                                 to={'/settings/change-password'}
                                 onClick={(e) => setPage(e.target.innerText)}
                                 className={"sidebar-link"}

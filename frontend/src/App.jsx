@@ -4,7 +4,7 @@ import { Navbar, SideNavbar } from "./components";
 import { 
     Editor, HomePage, PageNotFound, 
     ProiflePage, SearchPage,BlogPage, 
-    UserAuthForm, ChangePassword, EditProfile, 
+    UserAuthForm, ChangePassword, EditProfile, IntegrationTokenPage,
     NotificationPage,
     ManageBlogs
 } from "./pages";
@@ -38,6 +38,7 @@ const App = () => {
                     </Route>
                     <Route path="settings" element={<SideNavbar/>}>
                         <Route path="edit-profile" element={<EditProfile/>}/>
+                        <Route path="integration-token" element={<IntegrationTokenPage/>}/>
                         <Route path="change-password" element={<ChangePassword/>}/>
                     </Route>
                     <Route path='signin' element={<UserAuthForm type="sign-in" />} />
